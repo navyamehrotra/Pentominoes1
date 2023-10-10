@@ -86,7 +86,7 @@ public class Search
     	boolean solutionFound = false;
     	
     	while (!solutionFound) {
-    		solutionFound = true;
+    		solutionFound = false;
     		
     		//Empty board again to find a solution
 			for (int i = 0; i < field.length; i++) {
@@ -129,10 +129,11 @@ public class Search
     			}
     		
     			//If there is a possibility to place the piece on the field, do it
-    			if (x >= 0 && y >= 0) {
+    			if (x >= 0 && y >= 0 && canAddPiece(field, pieceToPlace, pentID, x, y)) {
 	    			addPiece(field, pieceToPlace, pentID, x, y);
 	    		} 
     		}
+
     		//Check whether complete field is filled
     		//
     		//
@@ -150,6 +151,10 @@ public class Search
     		}
     	}
     }
+
+	public static boolean canAddPiece(int[][] field, int[][] piece, int pieceID, int x, int y) {
+		return true; // Temporary
+	}
 
     
 	/**
