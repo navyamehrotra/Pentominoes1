@@ -150,14 +150,24 @@ public class Search
     		}
 
     		//Check whether complete field is filled
+			// While boolean solutionFound is true ->
+    		// Iterate over each possible position in x and y axis - >
+    		// If position in the field is equal to -1, the space is empty
+    		// If the field has a empty space, solution is not found. 
+    		// Loop repeats.
     		//
-    		//
-    		// TODO: To be implemented
-    		//
-    		//
-    		
+			while (solutionFound) {
+				for (int i = 0; i < field.length; i++) {
+					for (int j = 0; j < field[i].length; j++) {
+						if (field[i][j] == -1) {
+							solutionFound = false;
+						}
+					}
+				}
 
-    		
+			}
+	
+
     		if (solutionFound) {
     			//display the field
     			ui.setState(field); 
