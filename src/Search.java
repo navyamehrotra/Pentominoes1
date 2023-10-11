@@ -2,15 +2,16 @@
  * @author Department of Data Science and Knowledge Engineering (DKE)
  * @version 2022.0
  */
- import java.util.Scanner;
- import java.util.Random;
- import java.util.ArrayList;
+ import java.util.*;
+
 
 /**
  * This class includes the methods to support the search of a solution.
  */
 public class Search
 {
+	public static final int EMPTY = 0;
+
 	public static final Scanner scan = new Scanner(System.in);
 
 	public static final int horizontalGridSize = horizontalSize();
@@ -168,7 +169,7 @@ public class Search
     			}
     		
     			//If there is a possibility to place the piece on the field, do it
-    			if (x >= 0 && y >= 0 && canAddPiece(field, pieceToPlace, pentID, x, y)) {
+    			if (x >= 0 && y >= 0 && canAddPiece(field, pieceToPlace, x, y)) {
 	    			addPiece(field, pieceToPlace, pentID, x, y);
 	    		} 
     		}
@@ -207,48 +208,59 @@ public class Search
 	 * @param col  Current column to attempt to place a piece.
 	 * @return true if the grid can be filled, false otherwise.
 	 */
-	public static boolean fillGrid(int[][] grid, int row, int col, int[][] database) {
+	public static boolean recursiveSearch(int[][] grid, int row, int col, LinkedList<Character> pentominoes) {
 		// If 'row' is equal to GRID_SIZE, the grid is filled successfully
-		if (row == horizontalGridSize && col == verticalGridSize) {
+		if (row == verticalGridSize && col == 0) {
 			return true;
 		} 
-		
-		int[][] tempDatabase = new int[PentominoDatabase.data.length - 1][];
-		System.arraycopy(PentominoDatabase.data, 1, database, 0, database.length - 1);
 
-		if(row == horizontalGridSize){
-			fillGrid(grid, row + 1, col,tempDatabase);
+		if(col == horizontalGridSize - 1){
+			return recursiveSearch(grid, row + 1, 0, pentominoes);
 		}
 		
 		// If the current cell is not EMPTY, move to the next column
 		if (grid[row][col] != EMPTY) {
-			return fillGrid(grid, row, col + 1, tempDatabase);
+			return recursiveSearch(grid, row, col + 1, pentominoes);
 		}
 
 		// Loop through each possible shapes
-		for (int j = 0; j <= 11; j++) {
-			for (int i = 0; i <= 7; i++) {
-				int pentID = characterToID(input[j]);
-				int mutation = i;
+		ListIterator iterator = pentominoes.listIterator();
+		while(iterator.hasNext()) {
+			for (int mutation = 0; mutation < 8; mutation++) {
+				Character pentChar = (Character)iterator.next();
+
+				int pentID = characterToID(pentChar);
 				int[][] pieceToPlace = PentominoDatabase.data[pentID][mutation];
 
-				if (canPlacePentomino(grid, row, col, pieceToPlace)) {
+				//
+				int emptyPadding = 0;
+				for (int i = 0; i <  pieceToPlace.length; i++) {
+					if (pieceToPlace[i][pieceToPlace[i].length - 1] == 0) {
+						emptyPadding++;
+					} else {
+						break;
+					}
+				}
 
-					// If yes, place the L-shape and print the grid state
-					placePentomino(grid, row, col, pieceToPlace, FILLED);
-					System.out.println("Trying to place at: (" + row + ", " + col + ")");
-					printGrid(grid);
+				if (canAddPiece(grid, pieceToPlace, col - emptyPadding, row)) {
+
+					// Add the element
+					addPiece(grid, pieceToPlace, pentID, col - emptyPadding, row);
+					iterator.remove();
+					//System.out.println("Trying to place at: (" + row + ", " + col + ")");
+					//printGrid(grid);
 
 					// Recur with the next column
-					if (fillGrid(grid, row, col + 1, tempDatabase)) {
+					if (recursiveSearch(grid, row, col + 1, pentominoes)) {
 						return true;
 					}
 
 					// If placing the L-shape did not lead to a solution, remove it (backtrack) and
 					// print the grid state
-					placePentomino(grid, row, col, pieceToPlace, EMPTY);
-					System.out.println("Backtracking from: (" + row + ", " + col + ")");
-					printGrid(grid);
+					addPiece(grid, pieceToPlace, EMPTY, col - emptyPadding, row);
+					iterator.add(pentChar);
+					//System.out.println("Backtracking from: (" + row + ", " + col + ")");
+					//printGrid(grid);
 				}
 			}
 		}
@@ -296,7 +308,7 @@ public class Search
         }
     }
 
-public static boolean canAddPiece(int[][] field, int[][] piece, int pieceID, int x, int y) {
+public static boolean canAddPiece(int[][] field, int[][] piece, int x, int y) {
 
 	for (int i = 0; i < piece.length; i++) // loop over x position of pentomino
 	{
