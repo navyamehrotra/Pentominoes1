@@ -4,6 +4,7 @@
  */
  import java.util.Scanner;
  import java.util.Random;
+ import java.util.ArrayList;
 
 /**
  * This class includes the methods to support the search of a solution.
@@ -27,8 +28,31 @@ public class Search
 		int verticalGridSize = Integer.parseInt(scan.nextLine());
 		return verticalGridSize;
 	}
-    
-    public static final char[] input = { 'W', 'Y', 'I', 'T', 'Z', 'L'};
+
+    public static final char[] inputsPossible = { 'X', 'I', 'Z', 'T', 'U', 'W', 'V', 'Y', 'L', 'P', 'N', 'F' };
+	public static final char[] input = getPentominoInput();
+
+	public static char[] getPentominoInput() {
+		System.out.println("Input a list of Pentominoes to be used (all in one line:)");
+		String line = scan.nextLine();
+
+		ArrayList<Character> inputList = new ArrayList<Character>();
+		for (char c : inputsPossible) {
+			for (char d : line.toCharArray()) {
+				if (c == d) {
+					inputList.add(c);
+					break;
+				}
+			}
+		}
+
+		char[] chars = new char[inputList.size()];
+		for (int i = 0; i < inputList.size(); i++) {
+			chars[i] = inputList.get(i);
+		}
+
+		return chars;
+	}
     
     //Static UI class to display the board
     public static UI ui = new UI(horizontalGridSize, verticalGridSize, 50);
@@ -156,17 +180,15 @@ public class Search
     		// If the field has a empty space, solution is not found. 
     		// Loop repeats.
     		//
-			while (solutionFound) {
-				for (int i = 0; i < field.length; i++) {
-					for (int j = 0; j < field[i].length; j++) {
-						if (field[i][j] == -1) {
-							solutionFound = false;
-						}
+			for (int i = 0; i < field.length; i++) {
+				for (int j = 0; j < field[i].length; j++) {
+					if (field[i][j] == -1) {
+						solutionFound = false;
 					}
 				}
-
 			}
-	
+
+			ui.setState(field); 
 
     		if (solutionFound) {
     			//display the field
