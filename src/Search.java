@@ -152,10 +152,6 @@ public class Search
     	}
     }
 
-	public static boolean canAddPiece(int[][] field, int[][] piece, int pieceID, int x, int y) {
-		return true; // Temporary
-	}
-
     
 	/**
 	 * Adds a pentomino to the position on the field (overriding current board at that position)
@@ -179,6 +175,19 @@ public class Search
             }
         }
     }
+
+public static boolean canAddPiece(int[][] field, int[][] piece, int pieceID, int x, int y) {
+
+	for (int i = 0; i < piece.length; i++) // loop over x position of pentomino
+	{
+		for (int j = 0; j < piece[i].length; j++) // loop over y position of pentomino
+		{
+			if (piece[i][j] == 1 && field[x + i][y + j] != -1)
+				return false;
+		}
+	}
+	return true;
+}
 
 	/**
 	 * Main function. Needs to be executed to start the basic search algorithm
