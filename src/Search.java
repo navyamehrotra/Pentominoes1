@@ -2,7 +2,7 @@
  * @author Department of Data Science and Knowledge Engineering (DKE)
  * @version 2022.0
  */
-
+ import java.util.Scanner;
  import java.util.Random;
 
 /**
@@ -10,8 +10,23 @@
  */
 public class Search
 {
-    public static final int horizontalGridSize = 5;
-    public static final int verticalGridSize = 6;
+	public static final Scanner scan = new Scanner(System.in);
+
+	public static final int horizontalGridSize = horizontalSize();
+
+	public static int horizontalSize() {
+		System.out.print("Please enter horizontal grid size: ");
+		int horizontalGridSize = Integer.parseInt(scan.nextLine());
+		return horizontalGridSize;
+	}
+    
+	public static final int verticalGridSize = verticalSize();
+
+	public static int verticalSize() {
+		System.out.print("Please enter vertical grid size: ");
+		int verticalGridSize = Integer.parseInt(scan.nextLine());
+		return verticalGridSize;
+	}
     
     public static final char[] input = { 'W', 'Y', 'I', 'T', 'Z', 'L'};
     
@@ -135,14 +150,24 @@ public class Search
     		}
 
     		//Check whether complete field is filled
+			// While boolean solutionFound is true ->
+    		// Iterate over each possible position in x and y axis - >
+    		// If position in the field is equal to -1, the space is empty
+    		// If the field has a empty space, solution is not found. 
+    		// Loop repeats.
     		//
-    		//
-    		// TODO: To be implemented
-    		//
-    		//
-    		
+			while (solutionFound) {
+				for (int i = 0; i < field.length; i++) {
+					for (int j = 0; j < field[i].length; j++) {
+						if (field[i][j] == -1) {
+							solutionFound = false;
+						}
+					}
+				}
 
-    		
+			}
+	
+
     		if (solutionFound) {
     			//display the field
     			ui.setState(field); 
@@ -195,5 +220,6 @@ public static boolean canAddPiece(int[][] field, int[][] piece, int pieceID, int
     public static void main(String[] args)
     {
         search();
+		
     }
 }
