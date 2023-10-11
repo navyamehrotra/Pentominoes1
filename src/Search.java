@@ -199,6 +199,79 @@ public class Search
     	}
     }
 
+/**
+	 * Recursive function to try and fill the grid.
+	 *
+	 * @param grid Current grid state.
+	 * @param row  Current row to attempt to place a piece.
+	 * @param col  Current column to attempt to place a piece.
+	 * @return true if the grid can be filled, false otherwise.
+	 */
+	public static boolean fillGrid(int[][] grid, int row, int col, int[][] database) {
+		// If 'row' is equal to GRID_SIZE, the grid is filled successfully
+		if (row == horizontalGridSize && col == verticalGridSize) {
+			return true;
+		} 
+		
+		int[][] tempDatabase = new int[PentominoDatabase.data.length - 1][];
+		System.arraycopy(PentominoDatabase.data, 1, database, 0, database.length - 1);
+
+		if(row == horizontalGridSize){
+			fillGrid(grid, row + 1, col,tempDatabase);
+		}
+		
+		// If the current cell is not EMPTY, move to the next column
+		if (grid[row][col] != EMPTY) {
+			return fillGrid(grid, row, col + 1, tempDatabase);
+		}
+
+		// Loop through each possible shapes
+		for (int j = 0; j <= 11; j++) {
+			for (int i = 0; i <= 7; i++) {
+				int pentID = characterToID(input[j]);
+				int mutation = i;
+				int[][] pieceToPlace = PentominoDatabase.data[pentID][mutation];
+
+				if (canPlacePentomino(grid, row, col, pieceToPlace)) {
+
+					// If yes, place the L-shape and print the grid state
+					placePentomino(grid, row, col, pieceToPlace, FILLED);
+					System.out.println("Trying to place at: (" + row + ", " + col + ")");
+					printGrid(grid);
+
+					// Recur with the next column
+					if (fillGrid(grid, row, col + 1, tempDatabase)) {
+						return true;
+					}
+
+					// If placing the L-shape did not lead to a solution, remove it (backtrack) and
+					// print the grid state
+					placePentomino(grid, row, col, pieceToPlace, EMPTY);
+					System.out.println("Backtracking from: (" + row + ", " + col + ")");
+					printGrid(grid);
+				}
+			}
+		}
+		// If no L-shapes can be placed, return false
+		return false;
+	}
+
+	// printing the possible outcomes since the UI doesnt wanna work??
+	static void printGrid(int[][] grid) {
+		// Loop through each row
+		for (int[] row : grid) {
+			// Loop through each column in the row
+			for (int cell : row) {
+				// Print "X" if FILLED, "." if EMPTY
+				System.out.print((cell == EMPTY ? "." : "X") + " ");
+			}
+			// Move to the next line after printing all columns in a row
+			System.out.println();
+		}
+		// Print an empty line to separate grid states
+		System.out.println();
+	}
+
     
 	/**
 	 * Adds a pentomino to the position on the field (overriding current board at that position)
