@@ -13,8 +13,10 @@ public class Search {
 
 	public static final int EMPTY = -1; // How empty grid cells are defined.
 
-	public static final int horizontalGridSize = horizontalSize();
-	public static final int verticalGridSize = verticalSize();
+	public static int horizontalGridSize = horizontalSize();
+	public static int verticalGridSize = verticalSize();
+	public static int choice = pickAlgorithm();
+	public static boolean useUI = true;
 
 	// Asks and stores user choice for the height of the grid to be filled.
 	public static int horizontalSize() {
@@ -30,8 +32,16 @@ public class Search {
 		return verticalGridSize;
 	}
 
+	// Asks and stores user choice of algorithm
+	public static int pickAlgorithm() {
+		System.out.println("Please select which algorithm to use.\n" + "0 for basic, 1 for recursive.\n" + "Your choice: ");
+		int algorithm = scan.nextInt();
+		scan.nextLine();
+		return algorithm;
+	}
+
 	public static final char[] inputsPossible = { 'X', 'I', 'Z', 'T', 'U', 'W', 'V', 'Y', 'L', 'P', 'N', 'F' };
-	public static final char[] input = getPentominoInput();
+	public static char[] input = getPentominoInput();
 
 	/**
 	 * Asks and stores user choice of pentominoes to include in solution, as an
@@ -68,9 +78,7 @@ public class Search {
 	/**
 	 * Helper function which starts a basic search algorithm.
 	 */
-	public static void search() {
-		Scanner reader = new Scanner(System.in);
-
+	public static boolean search() {
 		// Initialize an empty board.
 		int[][] field = new int[horizontalGridSize][verticalGridSize];
 
@@ -82,16 +90,13 @@ public class Search {
 			}
 		}
 
-		// Start the search, asking for user input on which algorithm to use.
-		System.out.println(
-				"Please select which algorithm to use.\n" + "0 for basic, 1 for recursive.\n" + "Your choice: ");
-		int choice = reader.nextInt();
-
 		if (choice == 0) {
-			basicSearch(field);
+			return basicSearch(field);
 		} else if (choice == 1) {
-			recursiveSearch(field, input);
+			return recursiveSearch(field, input);
 		}
+
+		return false;
 	}
 
 	/**
@@ -141,7 +146,7 @@ public class Search {
 	 * 
 	 * @param field a matrix representing the board to be fulfilled with pentominoes
 	 */
-	private static void basicSearch(int[][] field) {
+	private static boolean basicSearch(int[][] field) {
 		Random random = new Random();
 		boolean solutionFound = false;
 
@@ -215,15 +220,18 @@ public class Search {
 				}
 			}
 
-			ui.setState(field);
+			if (useUI) {
+				ui.setState(field);
+			}
 
 			if (solutionFound) {
 				// display the field
-				ui.setState(field);
 				System.out.println("Solution found");
 				break;
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -297,7 +305,9 @@ public class Search {
 						}
 					}
 
-					ui.setState(grid);
+					if (useUI) {
+						ui.setState(grid);
+					}
 
 					// Recur with the next column.
 					if (recursiveSearch(grid, row, col + 1, remainingPents)) {
@@ -373,59 +383,10 @@ public class Search {
 	 */
 	public static void main(String[] args) {
 		//search();
-		algorithmTest();
+		search();
+		System.out.println("Done!");
 		return;
 	}
 
-	public static void algorithmTest() {
-		for (int xSize = 1; xSize <= 12; xSize++) {
-			for (int ySize = 1; ySize <= 12; ySize++) {
-				verticalGridSize = ySize;
-				horizontalGridSize = xSize;
-
-				if ((xSize * ySize) % 5 == 0) {
-					//System.out.println(xSize + " x " + ySize);
-					allInputCombinations(xSize * ySize / 5);
-				}
-			}
-		}
-	}
-
-	public static void allInputCombinations(int piecesToCollect) {
-		allInputCombinations(new ArrayList<Character>(), 0, piecesToCollect);
-	}
-
-	/**
-	 * 
-	 * @param current
-	 * @param piecesToCollect
-	 */
-	public static void allInputCombinations(ArrayList<Character> inputTemp, int currentlyConsidered, int piecesToCollect) {
-		if (piecesToCollect == 0) {
-			input = new char[inputTemp.size()];
-			for (int i = 0; i < inputTemp.size(); i++) {
-				input[i] = inputTemp.get(i);
-			}
-
-			boolean found = search();
-			
-			//// collection of the experiment data and lookup table data should happen here
-
-
-			///////
-			
-
-			return;
-		}
-
-		if (currentlyConsidered == inputsPossible.length) {
-			return;
-		}
-
-		allInputCombinations(inputTemp, currentlyConsidered + 1, piecesToCollect);
-
-		inputTemp.add(inputsPossible[currentlyConsidered]);
-		allInputCombinations(inputTemp, currentlyConsidered + 1, piecesToCollect - 1);
-		inputTemp.remove(inputTemp.size() - 1);
-	}
+	
 }
