@@ -23,4 +23,5 @@ N. Mehrotra (i6349918); V. Shabanaj (i6367923); A. Chedid (i6363894); A. Heijthu
 USER INSTRUCTIONS: 
 1. Please enter horizontal grid size (upto 5 ) and vertical grid size (up to 12 ). 
 2. Please input a list of Pentominoes to be used (X,I,Z,T,N,Y,U,V,W,L,P,F), must be in Uppercase.
-3. Watch the magic happen.
+3. Choose the algorithm (0 - basic search, 1 - recursive search)
+4. Watch the magic happen.
