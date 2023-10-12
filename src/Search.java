@@ -372,6 +372,60 @@ public class Search {
 	 * Main function. Needs to be executed to start the basic search algorithm
 	 */
 	public static void main(String[] args) {
-		search();
+		//search();
+		algorithmTest();
+		return;
+	}
+
+	public static void algorithmTest() {
+		for (int xSize = 1; xSize <= 12; xSize++) {
+			for (int ySize = 1; ySize <= 12; ySize++) {
+				verticalGridSize = ySize;
+				horizontalGridSize = xSize;
+
+				if ((xSize * ySize) % 5 == 0) {
+					//System.out.println(xSize + " x " + ySize);
+					allInputCombinations(xSize * ySize / 5);
+				}
+			}
+		}
+	}
+
+	public static void allInputCombinations(int piecesToCollect) {
+		allInputCombinations(new ArrayList<Character>(), 0, piecesToCollect);
+	}
+
+	/**
+	 * 
+	 * @param current
+	 * @param piecesToCollect
+	 */
+	public static void allInputCombinations(ArrayList<Character> inputTemp, int currentlyConsidered, int piecesToCollect) {
+		if (piecesToCollect == 0) {
+			input = new char[inputTemp.size()];
+			for (int i = 0; i < inputTemp.size(); i++) {
+				input[i] = inputTemp.get(i);
+			}
+
+			boolean found = search();
+			
+			//// collection of the experiment data and lookup table data should happen here
+
+
+			///////
+			
+
+			return;
+		}
+
+		if (currentlyConsidered == inputsPossible.length) {
+			return;
+		}
+
+		allInputCombinations(inputTemp, currentlyConsidered + 1, piecesToCollect);
+
+		inputTemp.add(inputsPossible[currentlyConsidered]);
+		allInputCombinations(inputTemp, currentlyConsidered + 1, piecesToCollect - 1);
+		inputTemp.remove(inputTemp.size() - 1);
 	}
 }
