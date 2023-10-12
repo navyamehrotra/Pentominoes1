@@ -115,7 +115,7 @@ public class Search {
 	}
 
 	/**
-	 * Basic implementation of a search algorithm. It is not a bruto force
+	 * Basic implementation of a search algorithm. It is not a brute force
 	 * algorithms (it does not check all the posssible combinations)
 	 * but randomly takes possible combinations and positions to find a possible
 	 * solution.
@@ -236,9 +236,9 @@ public class Search {
 			return recursiveSearch(grid, row, col + 1, pentominoes);
 		}
 
-		// Loop through each possible shapes
-		for (int c = 0; c < input.length; c++) {
-			int pentID = characterToID(input[c]);
+		// Loop through each possible shape
+		for (int c = 0; c < pentominoes.length; c++) {
+			int pentID = characterToID(pentominoes[c]);
 
 			for (int mutation = 0; mutation < PentominoDatabase.data[pentID].length; mutation++) {
 				System.out.println("Focused " + c);
@@ -258,17 +258,21 @@ public class Search {
 
 					// Add the element
 					addPiece(grid, pieceToPlace, pentID, col - emptyPadding, row);
-					char[] remainingPents = new char[input.length - 1];
-					System.arraycopy(input, 0, remainingPents, 0, c - 1);
-					System.arraycopy(input, c + 1, remainingPents, c, input.length - c);
+					char[] remainingPents = new char[pentominoes.length - 1];
+					int destPos = 0;
+					for (int i = 0; i < pentominoes.length; i++) {
+						if (i != c) {
+							remainingPents[destPos++] = pentominoes[i];
+						}
+					}
 
 					ui.setState(grid);
 
 					System.out.println("After removing: ");
-					System.out.println(remainingPents.toString());
 
-					// System.out.println("Trying to place at: (" + row + ", " + col + ")");
-					// printGrid(grid);
+					for (int i = 0; i < remainingPents.length; i++) {
+						System.out.print(remainingPents.toString() + " ");
+					}
 
 					// Recur with the next column
 					if (recursiveSearch(grid, row, col + 1, remainingPents)) {
@@ -281,30 +285,12 @@ public class Search {
 
 					System.out.println("After adding it back up: ");
 					System.out.println(pentominoes.toString());
-
-					// System.out.println("Backtracking from: (" + row + ", " + col + ")");
-					// printGrid(grid);
 				}
 			}
 		}
+
 		// If no L-shapes can be placed, return false
 		return false;
-	}
-
-	// printing the possible outcomes since the UI doesnt wanna work??
-	static void printGrid(int[][] grid) {
-		// Loop through each row
-		for (int[] row : grid) {
-			// Loop through each column in the row
-			for (int cell : row) {
-				// Print "X" if FILLED, "." if EMPTY
-				System.out.print((cell == EMPTY ? "." : "X") + " ");
-			}
-			// Move to the next line after printing all columns in a row
-			System.out.println();
-		}
-		// Print an empty line to separate grid states
-		System.out.println();
 	}
 
 	/**
