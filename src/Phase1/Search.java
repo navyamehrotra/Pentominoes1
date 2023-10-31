@@ -1,3 +1,4 @@
+package Phase1;
 
 /**
  * @author Department of Data Science and Knowledge Engineering (DKE)
@@ -151,7 +152,7 @@ public class Search {
 		boolean solutionFound = false;
 
 		while (!solutionFound) {
-			solutionFound = false;
+			solutionFound = true;
 
 			// Empty board again to find a solution
 			for (int i = 0; i < field.length; i++) {
