@@ -11,6 +11,9 @@ public class TetrisSurface {
 
     public Object getCell(int row, int column) {
         int id = boardController.getIDInCell(row, column);
+
+        //...
+
         return null;
     }
 
