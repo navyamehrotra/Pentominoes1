@@ -1,4 +1,5 @@
 import Constants.TetrisConstants;
+import Phase1.UI;
 import TetrisControllers.BoardController;
 import TetrisControllers.PlayerInput;
 import TetrisControllers.ScoreController;
@@ -13,9 +14,10 @@ public class TetrisRun {
         BoardController boardController = new BoardController();
         ScoreController scoreController = new ScoreController();
         PlayerInput playerInput = new PlayerInput(boardController);
+        UI ui = new UI(5, 15, 50);
 
         // Initializing UI components
-        TetrisSurface tetrisSurface = new TetrisSurface(boardController);
+        TetrisSurface tetrisSurface = new TetrisSurface(boardController, ui);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
         MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI);

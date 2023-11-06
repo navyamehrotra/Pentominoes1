@@ -1,12 +1,7 @@
 package TetrisGUI;
 
 import TetrisControllers.BoardController;
-
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import Phase1.PentominoBuilder;
-import Phase1.PentominoDatabase;
 import Phase1.UI;
 
 public class TetrisSurface extends JPanel {

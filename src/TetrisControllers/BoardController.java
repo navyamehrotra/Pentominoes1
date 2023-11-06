@@ -13,7 +13,7 @@ public class BoardController {
     private boolean timeToSpawn = true;
 
     public BoardController() {
-        boardValues = new int[TetrisConstants.BORD_HEIGHT][TetrisConstants.BOARD_WIDTH];
+        boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
     }
 
     public int getIDInCell(int row, int col) {

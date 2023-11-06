@@ -5,7 +5,7 @@ public class TetrisConstants {
     public static final double TICK_DELTA = 500;
 
     public static final int BOARD_WIDTH = 5;
-    public static final int BORD_HEIGHT = 15;
+    public static final int BOARD_HEIGHT = 15;
 
     public static final int HIGH_SCORES_KEPT = 5;
 }
