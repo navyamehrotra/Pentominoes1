@@ -45,16 +45,18 @@ public class MainUIFrame {
 
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(play, BorderLayout.NORTH);
+        // table to be replaced by call to ScoreUI
         tablePanel.add(table, BorderLayout.CENTER);
         tablePanel.add(quit, BorderLayout.SOUTH);
         
         rightPanel.add(reset, BorderLayout.NORTH);
         rightPanel.add(tablePanel, BorderLayout.SOUTH);
 
-        frame.add(new TetrisGrid(), BorderLayout.CENTER);
+        frame.add(boardUI.update(), BorderLayout.CENTER);
         frame.add(rightPanel, BorderLayout.EAST);
 
         frame.pack();
+        frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
