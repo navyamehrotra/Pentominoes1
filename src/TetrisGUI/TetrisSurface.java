@@ -41,7 +41,6 @@ public class TetrisSurface extends JPanel {
             cur = Color.LIGHT_GRAY;
         }
 
-        cell.setPreferredSize(new Dimension(50, 50));
         cell.setBackground(cur);
 
         return cell;

@@ -1,6 +1,8 @@
 package TetrisGUI;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+
 import java.awt.*;
 
 public class BoardUI {
@@ -12,11 +14,16 @@ public class BoardUI {
     }
 
     public JPanel update() {
-        JPanel surface = new JPanel();
-        surface.setLayout(new GridLayout(15, 5, 2, 2));
+        int gridGap = 2;
 
-        for (int row = 0; row < 15; row++) {
-            for (int column = 0; column < 5; column++) {
+        JPanel surface = new JPanel();
+
+        Border border = BorderFactory.createEmptyBorder(1, 1, 1, 1);
+        surface.setBorder(border);
+        surface.setLayout(new GridLayout(Constants.TetrisConstants.BOARD_HEIGHT, Constants.TetrisConstants.BOARD_WIDTH, gridGap, gridGap));
+
+        for (int row = 0; row < Constants.TetrisConstants.BOARD_HEIGHT; row++) {
+            for (int column = 0; column < Constants.TetrisConstants.BOARD_WIDTH; column++) {
                 surface.add(tetrisSurface.getCell(row, column));
             }
         }

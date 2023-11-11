@@ -20,9 +20,9 @@ public class ScoreController {
         return currentScore;
     }
 
-    public void newScore(int score) {
-        currentScore = score;
-        // Update highScores if it qualifies
+    public void addPoint() {
+        currentScore++;
+        // (...)Update highScores if it qualifies
     }
 
 

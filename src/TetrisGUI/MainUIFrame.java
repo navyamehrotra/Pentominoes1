@@ -1,13 +1,10 @@
 package TetrisGUI;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import java.util.Arrays;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 
 public class MainUIFrame {
@@ -15,24 +12,36 @@ public class MainUIFrame {
     private BoardUI boardUI;
     private ScoreUI scoreUI;
 
+    private JFrame frame;
+    private JPanel tetrisBoard;
+
+    private final int RIGHT_PANEL_PREFERRED_WIDTH = 100;
+    private final int RIGHT_PANEL_MARGINS = 7;
+
     public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI) {
         this.boardUI = boardUI;
         this.scoreUI = scoreUI;
 
-        // Faked data for testing purposes
-        String[] colNames = { "name", "score" };
-        String[][] data = { { "Aukje", "5000" }, { "Ata", "3500" }, { "Ty", "3000" }, { "Nathan", "2600" },
-                { "Anatoly", "2300" } };
-        JTable table = new JTable(data, colNames);        
+        // Setup the frame
+        frame = new JFrame();
+        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.LINE_AXIS));
+        frame.setResizable(false);
 
-        JFrame frame = new JFrame();
-        JPanel rightPanel = new JPanel(new BorderLayout());
+        frame.addComponentListener(new ComponentAdapter() 
+        {  
+            public void componentResized(ComponentEvent evt) {
+                frameSizeChanged(true);
+            }
+        });
 
+        frame.setLocationRelativeTo(null);
+        frame.setSize(new Dimension(560, 570));
+
+        // Create the buttons
         JButton reset = new JButton("Reset");
         JButton play = new JButton("Play");
         JButton quit = new JButton("Quit");
 
-        // For testing purposes for play button functionality
         play.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -41,29 +50,76 @@ public class MainUIFrame {
             }
         });
 
-        frame.setLayout(new BorderLayout());
+        // The left panel
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        frame.add(leftPanel);
 
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(play, BorderLayout.NORTH);
-        // table to be replaced by call to ScoreUI
-        tablePanel.add(table, BorderLayout.CENTER);
-        tablePanel.add(quit, BorderLayout.SOUTH);
-        
-        rightPanel.add(reset, BorderLayout.NORTH);
-        rightPanel.add(tablePanel, BorderLayout.SOUTH);
+        // The tetris board
+        tetrisBoard = boardUI.update();
+        frame.add(tetrisBoard);
+       
+        // The right panel
+        JPanel rightPanel = new JPanel(new GridBagLayout());
 
-        frame.add(boardUI.update(), BorderLayout.CENTER);
-        frame.add(rightPanel, BorderLayout.EAST);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+        gbc.insets = new Insets(RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS);
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.weightx = 1;
 
-        frame.pack();
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
+        rightPanel.add(reset, gbc);    
+
+        // Empty panel that fills space
+        gbc.weighty = 1;
+        rightPanel.add(new JPanel(), gbc);   
+        gbc.weighty = 0;
+
+        gbc.anchor = GridBagConstraints.LAST_LINE_START;
+        rightPanel.add(play, gbc);
+        rightPanel.add(scoreUI.update(), gbc);
+        rightPanel.add(quit, gbc);
+
+        frame.add(rightPanel);
+
+        // Resize elements of the right panel to the same width
+        for (Component c : rightPanel.getComponents()) {
+            c.setPreferredSize(new Dimension(RIGHT_PANEL_PREFERRED_WIDTH, c.getPreferredSize().height));
+        }
+
+        // 
+        rightPanel.setPreferredSize(new Dimension(0, 0));
+        leftPanel.setPreferredSize(new Dimension(0, 0));
         frame.setVisible(true);
+        frameSizeChanged(true);
     }
 
     public void updateAndDisplay() {
-        JPanel tetrisBoard = boardUI.update();
-        JPanel highScore = scoreUI.update();
-        // ...
+
+        // Replace the tetris board with an updated one
+        int index = Arrays.asList(frame.getContentPane().getComponents()).indexOf((Component)tetrisBoard);
+        frame.remove(tetrisBoard);
+        tetrisBoard = boardUI.update();
+        frame.add(tetrisBoard, index);
+
+        frameSizeChanged(false);
+
+        scoreUI.update();
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void frameSizeChanged(boolean forceSize) {
+        int heightToWidth = Constants.TetrisConstants.BOARD_HEIGHT / Constants.TetrisConstants.BOARD_WIDTH;
+
+        if (tetrisBoard != null) {
+            tetrisBoard.setPreferredSize(new Dimension(frame.getHeight() / heightToWidth, frame.getHeight()));    
+            
+            if (forceSize) {
+                tetrisBoard.setSize(new Dimension(frame.getHeight() / heightToWidth, frame.getHeight()));                        
+            }
+        }
     }
 }
