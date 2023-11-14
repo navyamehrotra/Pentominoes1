@@ -3,14 +3,17 @@ package TetrisGUI;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import Phase1.PentominoBuilder;
+
 import java.awt.*;
 
-public class BoardUI {
+public class BoardUI extends PentominoBuilder{
     private TetrisSurface tetrisSurface;
 
     public BoardUI(TetrisSurface tetrisSurface) {
         this.tetrisSurface = tetrisSurface;
         // ...
+        getData();
     }
 
     public JPanel update() {
@@ -30,5 +33,6 @@ public class BoardUI {
 
         return surface;
     }
+    
 
 }
