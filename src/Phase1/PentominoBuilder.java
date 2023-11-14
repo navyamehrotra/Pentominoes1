@@ -133,11 +133,6 @@ public class PentominoBuilder {
         }
     }
     
-    public static ArrayList getData(){
-        return database;
-    }
-    
-
     /**
      * Rotate the matrix x times over 90 degrees 
      * Assume that the matrix is a square!
