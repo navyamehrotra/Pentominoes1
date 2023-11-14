@@ -132,6 +132,11 @@ public class PentominoBuilder {
             database.add(tempDatabase);
         }
     }
+    
+    public static ArrayList getData(){
+        return database;
+    }
+    
 
     /**
      * Rotate the matrix x times over 90 degrees 
