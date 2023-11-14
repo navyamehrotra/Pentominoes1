@@ -1,6 +1,7 @@
 package TetrisControllers;
 
 import Constants.TetrisConstants;
+import Phase1.PentominoDatabase;
 
 public class BoardController {
     // The values of the array correspond to ids at cells of the board
@@ -40,7 +41,13 @@ public class BoardController {
     } 
 
     public void spawnPiece() {
-        //...
+        int pentominoID = (int)(Math.random() * 12); //0-11
+        int rotationID = (int)(Math.random() * PentominoDatabase.data[pentominoID].length); //0-x
+
+        int[][] randomPentomino = PentominoDatabase.data[pentominoID][rotationID];
+        // put randomPentomino into boardValues
+
+        // put the coords into xCoords and yCoords
     }
     
 }
