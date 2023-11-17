@@ -8,13 +8,12 @@ public class BoardController {
     private int[][] boardValues;
     
     // x and Y coordinates of the cells of the pentomino that's currently falling down 
-    private int[] xCoords = new int[5];
-    private int[] yCoords = new int[5];
-
-    private boolean timeToSpawn = true;
+    private int[] xCoords = new int[TetrisConstants.PIECE_SIZE];
+    private int[] yCoords = new int[TetrisConstants.PIECE_SIZE];
 
     public BoardController() {
         boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
+        spawnPiece();
     }
 
     public int getIDInCell(int row, int col) {
@@ -22,42 +21,54 @@ public class BoardController {
     }
 
     public void tick() {
-        if (timeToSpawn) {
+        boolean locked = moveDown();
+        if (locked) {
             spawnPiece();
-            timeToSpawn = false;
-        } else {
-            boolean locked = moveDown();
-            if (locked) {
-                timeToSpawn = true;
-            }
         }
     }
 
     // Returns true if the piece cannot move down anymore
     public boolean moveDown() {
-        for (int i = 0; i < yCoords.length; i++) {
-            yCoords[i]++; // Increment y coordinate to move down
+        boolean lock = canMoveDown();
+        if (!lock) { 
+            return true;
         }
 
-        boolean lock = canMoveDown();
-        return lock;
+        int id = boardValues[yCoords[0]][xCoords[0]];
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            boardValues[yCoords[i]][xCoords[i]] = 0;
+            yCoords[i]++;
+        }
+
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            boardValues[yCoords[i]][xCoords[i]] = id;
+        }
+
+        return false;
     } 
 
     public boolean canMoveDown() {
         // Check if the piece has reached the bottom
-        for (int i = 0; i < yCoords.length; i++) {
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             if (yCoords[i] >= TetrisConstants.BOARD_HEIGHT - 1) {
                 return false;
             }
         }
 
         // Check collision with existing pieces in the boardValues array
-        for (int i = 0; i < xCoords.length; i++) {
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             int x = xCoords[i];
             int y = yCoords[i];
 
+            boolean occupiedByItself = false;
+            for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
+                if (xCoords[j] == x && yCoords[j] == y + 1) {
+                    occupiedByItself = true;
+                }
+            }
+
             // Check if the position below the current piece is occupied
-            if (y < TetrisConstants.BOARD_HEIGHT - 1 && boardValues[y + 1][x] != 0) {
+            if (!occupiedByItself && y < TetrisConstants.BOARD_HEIGHT - 1 && boardValues[y + 1][x] != 0) {
                 return false;
             }
         }
@@ -93,30 +104,27 @@ public class BoardController {
 
     public void spawnPiece() {
         // Get a random pentomino with random rotation
-        int pentominoID = (int)(Math.random() * 12); //0-11
-        int rotationID = (int)(Math.random() * PentominoDatabase.data[pentominoID].length); //0-x
+        int pentominoID = (int)(Math.random() * PentominoDatabase.data.length);
+        int rotationID = (int)(Math.random() * PentominoDatabase.data[pentominoID].length);
         int[][] randomPentomino = PentominoDatabase.data[pentominoID][rotationID];
 
         // Place the pentomino into the boardValues at the calculated position
         int startX = (TetrisConstants.BOARD_WIDTH - randomPentomino[0].length) / 2;
         int startY = 0;
 
+        int squareInd = 0;
         for (int i = 0; i < randomPentomino.length; i++) {
             for (int j = 0; j < randomPentomino[0].length; j++) {
                 if (randomPentomino[i][j] != 0) {
-                    boardValues[startY + i][startX + j] = randomPentomino[i][j];
-                }
-            }
-        }
-        
-        // Put the coords into xCoords and yCoords
-        int index = 0;
-        for (int row = 0; row < randomPentomino.length; row++) {
-            for (int col = 0; col < randomPentomino[row].length; col++) {
-                if (randomPentomino[row][col] != 0) {
-                    xCoords[index] = col; // Assigning x coordinate
-                    yCoords[index] = row; // Assigning y coordinate
-                    index++;
+                    int y = startY + i;
+                    int x = startX + j;
+
+                    boardValues[y][x] = pentominoID + 1;
+
+                    // Put the coords into xCoords and yCoords
+                    yCoords[squareInd] = startY + i;
+                    xCoords[squareInd] = startX + j;
+                    squareInd++;
                 }
             }
         }
