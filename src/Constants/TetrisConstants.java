@@ -8,6 +8,6 @@ public class TetrisConstants {
     public static final int BOARD_HEIGHT = 15;
 
     public static final int HIGH_SCORES_KEPT = 5;
-
     public static final int PIECE_SIZE = 5;
+    public static final int NUMBER_OF_PENTOMINOS = 12;
 }
