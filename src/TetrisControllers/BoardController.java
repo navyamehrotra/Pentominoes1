@@ -11,6 +11,21 @@ public class BoardController {
     private int[] xCoords = new int[TetrisConstants.PIECE_SIZE];
     private int[] yCoords = new int[TetrisConstants.PIECE_SIZE];
     
+public BoardController(BoardController template) {
+        this();
+
+        for (int y = 0; y < TetrisConstants.BOARD_HEIGHT; y++) {
+            for (int x = 0; x < TetrisConstants.BOARD_WIDTH; x++) {
+                boardValues[y][x] = template.getIDInCell(y, x);
+            } 
+        }
+
+        for (int i = 0; i < 5; i++) {
+            xCoords[i] = template.getXCoord(i);
+            yCoords[i] = template.getYCoord(i);
+        }
+    }
+
 
     public BoardController() {
         boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
@@ -177,4 +192,20 @@ public class BoardController {
             pentomino.setY(pentomino.getY() + 1);
         }
     }*/
+
+public boolean canSpawnPiece(int id) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void spawnPiece(int id) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void spawnPiece(int[] xCoords, int[] yCoords) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void removeCurrentPiece() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
