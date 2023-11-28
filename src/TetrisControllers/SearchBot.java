@@ -35,7 +35,7 @@ public class SearchBot {
      * @param searchDepth - an integer >= 0. The larger, the more moves ahead are considered.
      */
     public void pickTheBestMove(BoardController boardController, int searchDepth) {
-        testBoardController = new BoardController(boardController);
+        testBoardController = new BoardController(boardController, new ScoreController());
         pickTheBestMove(searchDepth, true);
     }
 
