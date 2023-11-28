@@ -9,11 +9,19 @@ import TetrisGUI.TetrisSurface;
 
 public class TetrisRun {
     public static void main(String[] args) {
+        // playerType 0 is for the human player, other values are for bots
+        int playerType = 0;
+
         // Initializing controllers
         BoardController boardController = new BoardController();
         ScoreController scoreController = new ScoreController();
-        PlayerInput playerInput = new PlayerInput(boardController);
 
+        if (playerType == 0) {
+            PlayerInput playerInput = new PlayerInput();
+        } else {
+            //...
+        }
+        
         // Initializing UI components
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
@@ -23,15 +31,8 @@ public class TetrisRun {
         // Main game loop
         double previousTick = System.currentTimeMillis();
         boolean isRunning = true;
-        // playerType 0 is for the human player, other values are for bots
-        int playerType = 0;
+        
         while(isRunning) {
-            if (playerType == 0) {
-                playerInput.readInput();
-            } else {
-                //...
-            }
-
             if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
                 boardController.tick();
                 mainFrame.updateAndDisplay();

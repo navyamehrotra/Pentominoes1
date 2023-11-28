@@ -10,6 +10,7 @@ public class BoardController {
     // x and Y coordinates of the cells of the pentomino that's currently falling down 
     private int[] xCoords = new int[TetrisConstants.PIECE_SIZE];
     private int[] yCoords = new int[TetrisConstants.PIECE_SIZE];
+    
 
     public BoardController() {
         boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
@@ -129,4 +130,51 @@ public class BoardController {
             }
         }
     }
+
+    private int getCenterX() {
+        int min = 100;
+        int max = -100;
+        for (int i = 0; i < 5; i++) {
+            min = Math.min(xCoords[i], min);            
+            max = Math.max(xCoords[i], max); 
+        }
+
+        return min + max / 2;
+    }
+
+    /*public void rotatePentomino() {
+        int centerX = getCenterX();
+        int centerY = pentomino.getCenterY();
+
+        for (int i = 0; i < 5; i++) {
+            int newX = centerX + (yCoords[i] - centerY);
+            int newY = centerY - (xCoords[i] - centerX);
+            xCoords[i] = newX;
+            yCoords[i] = newY;
+        }
+    }*/
+
+    /*public void movePentominoDown() {
+        if (isValidMove(pentomino, 0, 1)) {
+            pentomino.setY(pentomino.getY() + 1);
+        }
+    }
+
+    public void movePentominoLeft() {
+        if (isValidMove(pentomino, -1, 0)) {
+            pentomino.setX(pentomino.getX() - 1);
+        }
+    }
+
+    public void movePentominoRight() {
+        if (isValidMove(pentomino, 1, 0)) {
+            pentomino.setX(pentomino.getX() + 1);
+        }
+    }
+
+    public void movePentominoHardDown() {
+        while (moveDown()) {
+            pentomino.setY(pentomino.getY() + 1);
+        }
+    }*/
 }

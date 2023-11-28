@@ -1,30 +1,28 @@
 package TetrisControllers;
 
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
+import java.awt.DefaultKeyboardFocusManager;
+import java.awt.event.*;
 
 public class PlayerInput {
 
-    private BoardController boardController;
-
-    public PlayerInput(BoardController boardController) {
-        this.boardController = boardController;
+    public PlayerInput() {
+        registerInputs();
     }
 
-    public void readInput() {
-        
+    public void registerInputs() {
+        DefaultKeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventPostProcessor(e -> {
+            keyPressed(e);
+            return true;
+        });
+
     }
-    public void registerInputs(JComponent component) {
-        component.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
+    
+    public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
-                        boardController.rotatePentomino();
+                        //boardController.rotatePentomino();
                         break;
-                    case KeyEvent.VK_DOWN:
+                    /*case KeyEvent.VK_DOWN:
                         boardController.movePentominoDown();
                         break;
                     case KeyEvent.VK_LEFT:
@@ -34,12 +32,9 @@ public class PlayerInput {
                         boardController.movePentominoRight();
                         break;
                     case Keyevent.VK_SPACE:
-                        boardController.H
+                        boardController.H*/
                 }
             }
-        });
-
-    }
 
     
 }
