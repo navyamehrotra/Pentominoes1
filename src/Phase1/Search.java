@@ -14,10 +14,10 @@ public class Search {
 
 	public static final int EMPTY = -1; // How empty grid cells are defined.
 
-	public static int horizontalGridSize = horizontalSize();
-	public static int verticalGridSize = verticalSize();
-	public static int choice = pickAlgorithm();
-	public static boolean useUI = true;
+	public static int horizontalGridSize;
+	public static int verticalGridSize;
+	public static int choice;
+	public static boolean useUI = false;
 
 	// Asks and stores user choice for the height of the grid to be filled.
 	public static int horizontalSize() {
@@ -42,7 +42,7 @@ public class Search {
 	}
 
 	public static final char[] inputsPossible = { 'X', 'I', 'Z', 'T', 'U', 'W', 'V', 'Y', 'L', 'P', 'N', 'F' };
-	public static char[] input = getPentominoInput();
+	public static char[] input;
 
 	/**
 	 * Asks and stores user choice of pentominoes to include in solution, as an
@@ -74,7 +74,7 @@ public class Search {
 	}
 
 	// Static UI class to display the board.
-	public static UI ui = new UI(horizontalGridSize, verticalGridSize, 50);
+	public static UI ui;
 
 	/**
 	 * Helper function which starts a basic search algorithm.
@@ -383,7 +383,15 @@ public class Search {
 	 * Main function. Needs to be executed to start the basic search algorithm
 	 */
 	public static void main(String[] args) {
-		//search();
+		horizontalGridSize = horizontalSize();
+		verticalGridSize = verticalSize();
+		choice = pickAlgorithm();
+		input = getPentominoInput();
+
+		if (useUI) {
+			ui = new UI(horizontalGridSize, verticalGridSize, 50);
+		}
+
 		search();
 		System.out.println("Done!");
 		return;

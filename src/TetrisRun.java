@@ -13,8 +13,8 @@ public class TetrisRun {
         int playerType = 0;
 
         // Initializing controllers
-        BoardController boardController = new BoardController();
         ScoreController scoreController = new ScoreController();
+        BoardController boardController = new BoardController(scoreController);
 
         if (playerType == 0) {
             PlayerInput playerInput = new PlayerInput();

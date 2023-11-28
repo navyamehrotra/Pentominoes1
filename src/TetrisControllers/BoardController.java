@@ -6,16 +6,40 @@ import Phase1.PentominoDatabase;
 public class BoardController {
     // The values of the array correspond to ids at cells of the board
     private int[][] boardValues;
+    private ScoreController scoreController;
     
     // x and Y coordinates of the cells of the pentomino that's currently falling down 
     private int[] xCoords = new int[TetrisConstants.PIECE_SIZE];
     private int[] yCoords = new int[TetrisConstants.PIECE_SIZE];
     
+    public BoardController(BoardController template, ScoreController scoreController) {
+        this(scoreController);
 
-    public BoardController() {
+        for (int y = 0; y < TetrisConstants.BOARD_HEIGHT; y++) {
+            for (int x = 0; x < TetrisConstants.BOARD_WIDTH; x++) {
+                boardValues[y][x] = template.getIDInCell(y, x);
+            } 
+        }
+
+        for (int i = 0; i < 5; i++) {
+            xCoords[i] = template.getXCoord(i);
+            yCoords[i] = template.getYCoord(i);
+        }
+    }
+
+    public BoardController(ScoreController scoreController) {
         boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
+        this.scoreController = scoreController;
         spawnPiece();
     }
+
+    public int getXCoord(int i) {
+        return xCoords[i];
+    }
+
+    public int getYCoord(int i) {
+        return yCoords[i];
+    }    
 
     public int getIDInCell(int row, int col) {
         return boardValues[row][col];
@@ -24,6 +48,7 @@ public class BoardController {
     public void tick() {
         boolean locked = moveDown();
         if (locked) {
+            checkAndClearLines();
             spawnPiece();
         }
     }
@@ -177,4 +202,51 @@ public class BoardController {
             pentomino.setY(pentomino.getY() + 1);
         }
     }*/
+
+    public boolean canSpawnPiece(int id) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void spawnPiece(int id) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void spawnPiece(int[] xCoords, int[] yCoords) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void removeCurrentPiece() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    private void checkAndClearLines() {
+        for (int row = TetrisConstants.BOARD_HEIGHT - 1; row >= 0; row--) {
+            boolean isLineFull = true;
+            for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
+                if (boardValues[row][col] == 0) {
+                    isLineFull = false;
+                    break;
+                }
+            }
+
+            if (isLineFull) {
+                clearLine(row);
+                row++; 
+            }
+        }
+    }
+
+    // moves stuff down
+    private void clearLine(int row) {
+        for (int r = row; r > 0; r--) {
+            for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
+                boardValues[r][col] = boardValues[r - 1][col];
+                scoreController.addPoint();
+            }
+        }
+    
+        for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
+            boardValues[0][col] = 0;
+        }
+    }
 }
