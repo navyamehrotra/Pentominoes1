@@ -132,7 +132,7 @@ public class PentominoBuilder {
             database.add(tempDatabase);
         }
     }
-
+    
     /**
      * Rotate the matrix x times over 90 degrees 
      * Assume that the matrix is a square!
