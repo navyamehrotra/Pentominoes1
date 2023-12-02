@@ -17,7 +17,7 @@ public class TetrisRun {
         BoardController boardController = new BoardController(scoreController);
 
         if (playerType == 0) {
-            PlayerInput playerInput = new PlayerInput();
+            PlayerInput playerInput = new PlayerInput(boardController);
         } else {
             //...
         }

@@ -26,6 +26,7 @@ public class MainUIFrame {
         frame = new JFrame();
         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.LINE_AXIS));
         frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.addComponentListener(new ComponentAdapter() 
         {  

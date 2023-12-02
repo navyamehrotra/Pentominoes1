@@ -46,62 +46,13 @@ public class BoardController {
     }
 
     public void tick() {
-        boolean locked = moveDown();
-        if (locked) {
+        boolean moved = move(0, 1);
+        if (!moved) {
             checkAndClearLines();
             spawnPiece();
         }
     }
-
-    // Returns true if the piece cannot move down anymore
-    public boolean moveDown() {
-        boolean lock = canMoveDown();
-        if (!lock) { 
-            return true;
-        }
-
-        int id = boardValues[yCoords[0]][xCoords[0]];
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            boardValues[yCoords[i]][xCoords[i]] = 0;
-            yCoords[i]++;
-        }
-
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            boardValues[yCoords[i]][xCoords[i]] = id;
-        }
-
-        return false;
-    } 
-
-    public boolean canMoveDown() {
-        // Check if the piece has reached the bottom
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            if (yCoords[i] >= TetrisConstants.BOARD_HEIGHT - 1) {
-                return false;
-            }
-        }
-
-        // Check collision with existing pieces in the boardValues array
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            int x = xCoords[i];
-            int y = yCoords[i];
-
-            boolean occupiedByItself = false;
-            for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
-                if (xCoords[j] == x && yCoords[j] == y + 1) {
-                    occupiedByItself = true;
-                }
-            }
-
-            // Check if the position below the current piece is occupied
-            if (!occupiedByItself && y < TetrisConstants.BOARD_HEIGHT - 1 && boardValues[y + 1][x] != 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    
     public static boolean isLineFull(int[][] a){
         int count = 0;
         for (int i = 0; i < a.length; i++) {
@@ -156,52 +107,88 @@ public class BoardController {
         }
     }
 
-    private int getCenterX() {
-        int min = 100;
-        int max = -100;
-        for (int i = 0; i < 5; i++) {
-            min = Math.min(xCoords[i], min);            
-            max = Math.max(xCoords[i], max); 
+    private int getCenter(int[] coords) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            min = Math.min(coords[i], min);
+            max = Math.max(coords[i], max);
         }
-
-        return min + max / 2;
+        return (min + max) / 2; // Already correct
     }
 
-    /*public void rotatePentomino() {
-        int centerX = getCenterX();
-        int centerY = pentomino.getCenterY();
-
-        for (int i = 0; i < 5; i++) {
-            int newX = centerX + (yCoords[i] - centerY);
-            int newY = centerY - (xCoords[i] - centerX);
-            xCoords[i] = newX;
-            yCoords[i] = newY;
+    public void rotatePentomino() {
+        int centerX = getCenter(xCoords);
+        int centerY = getCenter(yCoords);
+    
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            int oldX = xCoords[i];
+            int oldY = yCoords[i];
+    
+            // Rotating 90 degrees clockwise
+            xCoords[i] = centerX + (oldY - centerY);
+            yCoords[i] = centerY - (oldX - centerX);
         }
-    }*/
-
-    /*public void movePentominoDown() {
-        if (isValidMove(pentomino, 0, 1)) {
-            pentomino.setY(pentomino.getY() + 1);
-        }
+    
     }
 
-    public void movePentominoLeft() {
-        if (isValidMove(pentomino, -1, 0)) {
-            pentomino.setX(pentomino.getX() - 1);
+    public boolean move(int xDelta, int yDelta) {
+        if (canMove(xDelta, yDelta)) {
+            int id = boardValues[yCoords[0]][xCoords[0]];
+            // Clear current positions
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                boardValues[yCoords[i]][xCoords[i]] = 0;
+            }
+    
+            // Update coordinates
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                xCoords[i] += xDelta;
+                yCoords[i] += yDelta;
+            }
+    
+            // Place piece in new position
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                boardValues[yCoords[i]][xCoords[i]] = id;
+            }
         }
+        else {
+            return false;
+        }
+
+        return true;
     }
 
-    public void movePentominoRight() {
-        if (isValidMove(pentomino, 1, 0)) {
-            pentomino.setX(pentomino.getX() + 1);
+    public boolean canMove(int xDelta, int yDelta) {
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            int newX = xCoords[i] + xDelta;
+            int newY = yCoords[i] + yDelta;
+    
+            // Check board boundaries
+            if (newX < 0 || newX >= TetrisConstants.BOARD_WIDTH || newY < 0 || newY >= TetrisConstants.BOARD_HEIGHT) {
+                return false;
+            }
+    
+            // Check collision with other pieces
+            if (boardValues[newY][newX] != 0) {
+                // Exclude collision detection with itself
+                boolean occupiedByItself = false;
+                for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
+                    if (i != j && xCoords[j] == newX && yCoords[j] == newY) {
+                        occupiedByItself = true;
+                        break;
+                    }
+                }
+                if (!occupiedByItself) return false;
+            }
         }
+        return true;
     }
-
     public void movePentominoHardDown() {
-        while (moveDown()) {
-            pentomino.setY(pentomino.getY() + 1);
+        // Continue moving the piece down until it can no longer move
+        while (move(0,1)) {
         }
-    }*/
+    }
+    
 
     public boolean canSpawnPiece(int id) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not implemented yet");

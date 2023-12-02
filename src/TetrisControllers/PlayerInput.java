@@ -5,7 +5,11 @@ import java.awt.event.*;
 
 public class PlayerInput {
 
-    public PlayerInput() {
+    private BoardController boardController;
+
+    public PlayerInput(BoardController boardController) {
+        this.boardController = boardController;
+
         registerInputs();
     }
 
@@ -20,19 +24,19 @@ public class PlayerInput {
     public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
-                        //boardController.rotatePentomino();
+                        boardController.rotatePentomino();
                         break;
-                    /*case KeyEvent.VK_DOWN:
-                        boardController.movePentominoDown();
+                    case KeyEvent.VK_DOWN:
+                        boardController.move(0, 1);
                         break;
                     case KeyEvent.VK_LEFT:
-                        boardController.movePentominoLeft();
+                        boardController.move(-1, 0);
                         break;
                     case KeyEvent.VK_RIGHT:
-                        boardController.movePentominoRight();
+                        boardController.move(1, 0);
                         break;
-                    case Keyevent.VK_SPACE:
-                        boardController.H*/
+                    case KeyEvent.VK_SPACE:
+                        boardController.movePentominoHardDown();
                 }
             }
 
