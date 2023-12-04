@@ -107,19 +107,23 @@ public class BoardController {
         }
     }
 
-    private int getCenter(int[] coords) {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
+    private int getGeometricCenter(int[] coords) {
+        int sum = 0;
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            min = Math.min(coords[i], min);
-            max = Math.max(coords[i], max);
+            sum += coords[i];
         }
-        return (min + max) / 2; // Already correct
+        return sum / TetrisConstants.PIECE_SIZE;
     }
-
+    
     public void rotatePentomino() {
-        int centerX = getCenter(xCoords);
-        int centerY = getCenter(yCoords);
+        int id = boardValues[yCoords[0]][xCoords[0]];
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                boardValues[yCoords[i]][xCoords[i]] = 0;
+            }
+        
+            
+        int centerX = getGeometricCenter(xCoords);
+        int centerY = getGeometricCenter(yCoords);
     
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             int oldX = xCoords[i];
@@ -129,8 +133,17 @@ public class BoardController {
             xCoords[i] = centerX + (oldY - centerY);
             yCoords[i] = centerY - (oldX - centerX);
         }
+        
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                boardValues[yCoords[i]][xCoords[i]] = id;
+            }
     
+        // Optional: Adjust the position if the new coordinates are out of bounds
+        // This can be done by checking the new coordinates against the game board boundaries
+        // and shifting the piece accordingly.
     }
+    
+
 
     public boolean move(int xDelta, int yDelta) {
         if (canMove(xDelta, yDelta)) {
