@@ -8,6 +8,8 @@ import TetrisGUI.ScoreUI;
 import TetrisGUI.TetrisSurface;
 
 public class TetrisRun {
+
+
     public static void main(String[] args) {
         // playerType 0 is for the human player, other values are for bots
         int playerType = 0;
@@ -16,29 +18,43 @@ public class TetrisRun {
         ScoreController scoreController = new ScoreController();
         BoardController boardController = new BoardController(scoreController);
 
-        if (playerType == 0) {
-            PlayerInput playerInput = new PlayerInput();
-        } else {
-            //...
-        }
-        
         // Initializing UI components
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
-        MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI);
+        MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController);
+
+        if (playerType == 0) {
+            PlayerInput playerInput = new PlayerInput(boardController, mainFrame);
+        } else {
+            //...
+        }
+
 
         // Main game loop
+        boolean isRunning = false;
         double previousTick = System.currentTimeMillis();
-        boolean isRunning = true;
-        
-        while(isRunning) {
-            if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
-                boardController.tick();
-                mainFrame.updateAndDisplay();
-                previousTick += TetrisConstants.TICK_DELTA;
+
+        while (true) {
+            if (!isRunning && mainFrame.startRunning) {
+                previousTick = System.currentTimeMillis();
+                isRunning = true;
+                mainFrame.startRunning = false;
+            }
+
+            if(isRunning) {
+                if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
+                    isRunning = boardController.tick();
+                    mainFrame.markForUpdate();
+                    previousTick += TetrisConstants.TICK_DELTA;
+                }
+
+                if (mainFrame.isMarkedForUpdate()) {
+                    mainFrame.updateAndDisplay();
+                }
+                mainFrame.startRunning = false;
             }
         }
+        
     }
-    
 }

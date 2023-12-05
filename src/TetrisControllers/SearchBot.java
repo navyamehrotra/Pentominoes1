@@ -95,8 +95,8 @@ public class SearchBot {
         for (int i = 0; i < TetrisConstants.NUMBER_OF_PENTOMINOS; i++) {
             Double score = null;
 
-            if (testBoardController.canSpawnPiece(i)) {
-                testBoardController.spawnPiece(i);
+            if (testBoardController.canSpawnPiece(i, 0)) {
+                testBoardController.spawnPiece(i, 0);
                 score = pickTheBestMove(searchDepth - 1, false);
             } else {
                 score = 0.0;

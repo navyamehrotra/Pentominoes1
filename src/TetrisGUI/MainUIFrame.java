@@ -3,11 +3,17 @@ package TetrisGUI;
 import java.util.Arrays;
 
 import javax.swing.*;
+
+import TetrisControllers.BoardController;
+import TetrisControllers.ScoreController;
+
 import java.awt.*;
 import java.awt.event.*;
 
 
 public class MainUIFrame {
+
+    public boolean startRunning = false;
 
     private BoardUI boardUI;
     private ScoreUI scoreUI;
@@ -18,7 +24,9 @@ public class MainUIFrame {
     private final int RIGHT_PANEL_PREFERRED_WIDTH = 100;
     private final int RIGHT_PANEL_MARGINS = 7;
 
-    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI) {
+    private boolean markedForUpdate;
+
+    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController) {
         this.boardUI = boardUI;
         this.scoreUI = scoreUI;
 
@@ -26,6 +34,7 @@ public class MainUIFrame {
         frame = new JFrame();
         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.LINE_AXIS));
         frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.addComponentListener(new ComponentAdapter() 
         {  
@@ -46,7 +55,24 @@ public class MainUIFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Perform the action you want when the button is clicked
-                System.out.println("Play button clicked");
+                startRunning = true;
+            }
+        });
+
+        reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boardController.reset();
+                scoreController.resetScore();
+                updateAndDisplay();
+                startRunning = true;
+            }
+        });
+
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
             }
         });
 
@@ -95,6 +121,18 @@ public class MainUIFrame {
         frameSizeChanged(true);
     }
 
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public void markForUpdate() {
+        markedForUpdate = true;
+    }
+
+    public boolean isMarkedForUpdate() {
+        return markedForUpdate;
+    }
+
     public void updateAndDisplay() {
 
         // Replace the tetris board with an updated one
@@ -105,10 +143,13 @@ public class MainUIFrame {
 
         frameSizeChanged(false);
 
+
         scoreUI.update();
 
         frame.revalidate();
         frame.repaint();
+
+        markedForUpdate = false;
     }
 
     private void frameSizeChanged(boolean forceSize) {

@@ -9,8 +9,8 @@ public class BoardController {
     private ScoreController scoreController;
     
     // x and Y coordinates of the cells of the pentomino that's currently falling down 
-    private int[] xCoords = new int[TetrisConstants.PIECE_SIZE];
-    private int[] yCoords = new int[TetrisConstants.PIECE_SIZE];
+    private TetrisBlock[] blocks = new TetrisBlock[TetrisConstants.PIECE_SIZE];
+    private TetrisBlock centerBlock;
     
     public BoardController(BoardController template, ScoreController scoreController) {
         this(scoreController);
@@ -22,86 +22,52 @@ public class BoardController {
         }
 
         for (int i = 0; i < 5; i++) {
-            xCoords[i] = template.getXCoord(i);
-            yCoords[i] = template.getYCoord(i);
+            blocks[i] = new TetrisBlock(template.getXCoord(i), template.getYCoord(i));
         }
+        centerBlock = new TetrisBlock(template.centerBlock.getX(), template.centerBlock.getY()) ;
     }
 
     public BoardController(ScoreController scoreController) {
-        boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
         this.scoreController = scoreController;
-        spawnPiece();
+        reset();
+    }
+
+    public void reset() {
+        boardValues = new int[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH];
+
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            blocks[i] = new TetrisBlock(0, 0);
+        }
+        centerBlock = null;
+    }
+
+    public TetrisBlock getCenterBlock() {
+        return centerBlock;
     }
 
     public int getXCoord(int i) {
-        return xCoords[i];
+        return blocks[i].getX();
     }
 
     public int getYCoord(int i) {
-        return yCoords[i];
+        return blocks[i].getY();
     }    
 
     public int getIDInCell(int row, int col) {
         return boardValues[row][col];
     }
 
-    public void tick() {
-        boolean locked = moveDown();
-        if (locked) {
+    public boolean tick() {
+        boolean moved = move(0, 1);
+        boolean working = true;
+        if (!moved) {
             checkAndClearLines();
-            spawnPiece();
+            working = spawnPiece();
         }
+
+        return working;
     }
-
-    // Returns true if the piece cannot move down anymore
-    public boolean moveDown() {
-        boolean lock = canMoveDown();
-        if (!lock) { 
-            return true;
-        }
-
-        int id = boardValues[yCoords[0]][xCoords[0]];
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            boardValues[yCoords[i]][xCoords[i]] = 0;
-            yCoords[i]++;
-        }
-
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            boardValues[yCoords[i]][xCoords[i]] = id;
-        }
-
-        return false;
-    } 
-
-    public boolean canMoveDown() {
-        // Check if the piece has reached the bottom
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            if (yCoords[i] >= TetrisConstants.BOARD_HEIGHT - 1) {
-                return false;
-            }
-        }
-
-        // Check collision with existing pieces in the boardValues array
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            int x = xCoords[i];
-            int y = yCoords[i];
-
-            boolean occupiedByItself = false;
-            for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
-                if (xCoords[j] == x && yCoords[j] == y + 1) {
-                    occupiedByItself = true;
-                }
-            }
-
-            // Check if the position below the current piece is occupied
-            if (!occupiedByItself && y < TetrisConstants.BOARD_HEIGHT - 1 && boardValues[y + 1][x] != 0) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    
     public static boolean isLineFull(int[][] a){
         int count = 0;
         for (int i = 0; i < a.length; i++) {
@@ -128,11 +94,15 @@ public class BoardController {
     }
 
 
-    public void spawnPiece() {
+    public boolean spawnPiece() {
         // Get a random pentomino with random rotation
         int pentominoID = (int)(Math.random() * PentominoDatabase.data.length);
         int rotationID = (int)(Math.random() * PentominoDatabase.data[pentominoID].length);
         int[][] randomPentomino = PentominoDatabase.data[pentominoID][rotationID];
+
+        if (!canSpawnPiece(pentominoID, rotationID)) {
+            return false;
+        }
 
         // Place the pentomino into the boardValues at the calculated position
         int startX = (TetrisConstants.BOARD_WIDTH - randomPentomino[0].length) / 2;
@@ -148,66 +118,161 @@ public class BoardController {
                     boardValues[y][x] = pentominoID + 1;
 
                     // Put the coords into xCoords and yCoords
-                    yCoords[squareInd] = startY + i;
-                    xCoords[squareInd] = startX + j;
+                    blocks[squareInd].moveTo(startX + j, startY + i);
                     squareInd++;
                 }
             }
         }
+
+        // Get center
+        int centerX = getCenter(blocks, 0);
+        int centerY = getCenter(blocks, 1);
+
+        centerBlock = new TetrisBlock(centerX, centerY); // Change this
+        return true;
     }
 
-    private int getCenterX() {
-        int min = 100;
-        int max = -100;
-        for (int i = 0; i < 5; i++) {
-            min = Math.min(xCoords[i], min);            
-            max = Math.max(xCoords[i], max); 
+    private int getCenter(TetrisBlock[] blocks, int variable) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            min = Math.min(variable == 0 ? blocks[i].getX() : blocks[i].getY(), min);
+            max = Math.max(variable == 0 ? blocks[i].getX() : blocks[i].getY(), max);
         }
 
-        return min + max / 2;
+        return (int)Math.round((min + max) / 2.0);
     }
 
-    /*public void rotatePentomino() {
-        int centerX = getCenterX();
-        int centerY = pentomino.getCenterY();
-
-        for (int i = 0; i < 5; i++) {
-            int newX = centerX + (yCoords[i] - centerY);
-            int newY = centerY - (xCoords[i] - centerX);
-            xCoords[i] = newX;
-            yCoords[i] = newY;
+    
+    public boolean rotatePentomino(int direction) {
+        int id = boardValues[blocks[0].getY()][blocks[0].getX()];
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            boardValues[blocks[i].getY()][blocks[i].getX()] = 0;
         }
-    }*/
 
-    /*public void movePentominoDown() {
-        if (isValidMove(pentomino, 0, 1)) {
-            pentomino.setY(pentomino.getY() + 1);
+        TetrisBlock[] newBlocks = new TetrisBlock[TetrisConstants.PIECE_SIZE];
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            int oldX = blocks[i].getX();
+            int oldY = blocks[i].getY();
+    
+            // Rotating 90 degrees clockwise
+            int newX = centerBlock.getX() + (oldY - centerBlock.getY());
+            int newY = centerBlock.getY() - (oldX - centerBlock.getX());
+
+            newBlocks[i] = new TetrisBlock(newX, newY);
+
+            if (newX < 0 || newX >= TetrisConstants.BOARD_WIDTH 
+            || newY < 0 || newY >= TetrisConstants.BOARD_HEIGHT 
+            || boardValues[newY][newX] != 0) {
+                for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
+                    boardValues[blocks[j].getY()][blocks[j].getX()] = id;
+                }
+
+                return false;
+            }
         }
+
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            blocks[i] = newBlocks[i];
+        }
+        
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            boardValues[blocks[i].getY()][blocks[i].getX()] = id;
+        }
+
+        return true;
+    
+        // Optional: Adjust the position if the new coordinates are out of bounds
+        // This can be done by checking the new coordinates against the game board boundaries
+        // and shifting the piece accordingly.
     }
 
-    public void movePentominoLeft() {
-        if (isValidMove(pentomino, -1, 0)) {
-            pentomino.setX(pentomino.getX() - 1);
+
+    public boolean move(int xDelta, int yDelta) {
+        if (canMove(xDelta, yDelta)) {
+            int id = boardValues[blocks[0].getY()][blocks[0].getX()];
+            // Clear current positions
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                boardValues[blocks[i].getY()][blocks[i].getX()] = 0;
+            }
+    
+            // Update coordinates
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+                blocks[i].moveTo(blocks[i].getX() + xDelta, blocks[i].getY() + yDelta);
+            }
+            centerBlock.moveTo(centerBlock.getX() + xDelta, centerBlock.getY() + yDelta);
+    
+            // Place piece in new position
+            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            boardValues[blocks[i].getY()][blocks[i].getX()] = id;
+            }
         }
+        else {
+            return false;
+        }
+
+        return true;
     }
 
-    public void movePentominoRight() {
-        if (isValidMove(pentomino, 1, 0)) {
-            pentomino.setX(pentomino.getX() + 1);
+    public boolean canMove(int xDelta, int yDelta) {
+        if (centerBlock == null) {
+            return false;
         }
-    }
 
+        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
+            int newX = blocks[i].getX() + xDelta;
+            int newY = blocks[i].getY()+ yDelta;
+    
+            // Check board boundaries
+            if (newX < 0 || newX >= TetrisConstants.BOARD_WIDTH || newY < 0 || newY >= TetrisConstants.BOARD_HEIGHT) {
+                return false;
+            }
+    
+            // Check collision with other pieces
+            if (boardValues[newY][newX] != 0) {
+                // Exclude collision detection with itself
+                boolean occupiedByItself = false;
+                for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
+                    if (i != j && blocks[j].getX() == newX && blocks[j].getY() == newY) {
+                        occupiedByItself = true;
+                        break;
+                    }
+                }
+                if (!occupiedByItself) return false;
+            }
+        }
+        return true;
+    }
     public void movePentominoHardDown() {
-        while (moveDown()) {
-            pentomino.setY(pentomino.getY() + 1);
+        // Continue moving the piece down until it can no longer move
+        while (move(0,1)) {
         }
-    }*/
+    }
+    
 
-    public boolean canSpawnPiece(int id) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public boolean canSpawnPiece(int pentominoID, int rotationID) throws UnsupportedOperationException {
+        int[][] randomPentomino = PentominoDatabase.data[pentominoID][rotationID];
+        // Place the pentomino into the boardValues at the calculated position
+        int startX = (TetrisConstants.BOARD_WIDTH - randomPentomino[0].length) / 2;
+        int startY = 0;
+
+        for (int i = 0; i < randomPentomino.length; i++) {
+            for (int j = 0; j < randomPentomino[0].length; j++) {
+                if (randomPentomino[i][j] != 0) {
+                    int y = startY + i;
+                    int x = startX + j;
+
+                    if (boardValues[y][x] != 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
-    public void spawnPiece(int id) throws UnsupportedOperationException {
+    public void spawnPiece(int pentominoID, int rotationID) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -241,12 +306,13 @@ public class BoardController {
         for (int r = row; r > 0; r--) {
             for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
                 boardValues[r][col] = boardValues[r - 1][col];
-                scoreController.addPoint();
             }
         }
     
         for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
             boardValues[0][col] = 0;
         }
+
+        scoreController.addPoint();
     }
 }
