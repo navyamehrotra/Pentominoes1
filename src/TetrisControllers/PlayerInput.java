@@ -21,37 +21,31 @@ public class PlayerInput {
             keyPressed(e);
             return true;
         });
-
     }
     
     public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP:
-                        boardController.rotatePentomino();
-                        mainUIFrame.updateAndDisplay();
+        if (e.getID() == KeyEvent.KEY_PRESSED) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    boardController.rotatePentomino(1);
+                    mainUIFrame.markForUpdate();
 
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        boardController.move(0, 1);
-                        mainUIFrame.updateAndDisplay();
+                    break;
+                case KeyEvent.VK_LEFT:
+                    boardController.move(-1, 0);
+                    mainUIFrame.markForUpdate();
 
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        boardController.move(-1, 0);
-                        mainUIFrame.updateAndDisplay();
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    boardController.move(1, 0);
+                    mainUIFrame.markForUpdate();
 
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        boardController.move(1, 0);
-                        mainUIFrame.updateAndDisplay();
-
-                        break;
-                    case KeyEvent.VK_SPACE:
-                        boardController.movePentominoHardDown();
-                        mainUIFrame.updateAndDisplay();
-
-                }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    boardController.movePentominoHardDown();
+                    mainUIFrame.markForUpdate();
             }
-
-    
+        }
+                
+    }
 }

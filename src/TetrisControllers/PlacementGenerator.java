@@ -1,6 +1,11 @@
 package TetrisControllers;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+import Constants.TetrisConstants;
 
 public class PlacementGenerator {
 
@@ -14,11 +19,29 @@ public class PlacementGenerator {
      * @param resultYCoords - should be filled with y values of all of the possible placements.
      * @throws UnsupportedOperationException
      */    
+
+
     public static void getAllPossiblePlacements(
             BoardController boardController,
             ArrayList<int[]> resultXCoords, 
             ArrayList<int[]> resultYCoords) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not implemented yet");
+
+        int startRotation = 0;
+        int startX = boardController.getCenterBlock().getX();        
+        int startY = boardController.getCenterBlock().getY();
+
+        boolean[][][] canReach = new boolean[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH][4];       
+        boolean[][][] canEnd = new boolean[TetrisConstants.BOARD_HEIGHT][TetrisConstants.BOARD_WIDTH][4];
+
+        explore(startX, startY, startRotation, canReach, canEnd);
+    }
+
+    public static void explore(int currentX, int currentY, int rotation, 
+    boolean[][][] canReach, boolean[][][] canEnd) {
+
+
+
+
     }
     
 }

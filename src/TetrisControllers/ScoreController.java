@@ -14,28 +14,7 @@ public class ScoreController {
     
     // Nathaneal and Aukje please fill this class in (:
     public ScoreController() {
-        
         readHighScoresFromFile();
-
-        // determine the correct position for the current score in list
-        int position = 0;
-        for (int i = 0; i < highScores.length; i++) {
-            if (currentScore > highScores[i]) {
-                position = i;
-                break;
-            }
-        }
-
-        // move the lower scores down
-        for (int i = highScores.length - 1; i > position; i--)  {
-            highScores[i] = highScores[i - 1];
-        }
-        
-        // add current score to list
-        highScores[position] = currentScore;
-
-        writeHighScoresToFile();
-
     }
 
     public void readHighScoresFromFile() {
@@ -76,11 +55,35 @@ public class ScoreController {
         return currentScore;
     }
 
-    public void addPoint() {
-        currentScore++;
-        // (...)Update highScores if it qualifies
+    public void resetScore() {
+        currentScore = 0;
     }
 
+    public void addPoint() {
+        currentScore++;
+        
+        // determine the correct position for the current score in list
+        int position = -1;
+        for (int i = 0; i < highScores.length; i++) {
+            if (currentScore > highScores[i]) {
+                position = i;
+                break;
+            }
+        }
 
+        if (position == -1) {
+            return;
+        }
+
+        // move the lower scores down
+        for (int i = highScores.length - 1; i > position; i--)  {
+            highScores[i] = highScores[i - 1];
+        }
+        
+        // add current score to list
+        highScores[position] = currentScore;
+
+        writeHighScoresToFile();
+    }
 }
 
