@@ -16,17 +16,19 @@ public class TetrisRun {
         ScoreController scoreController = new ScoreController();
         BoardController boardController = new BoardController(scoreController);
 
-        if (playerType == 0) {
-            PlayerInput playerInput = new PlayerInput(boardController);
-        } else {
-            //...
-        }
+        
         
         // Initializing UI components
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
         MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI);
+
+        if (playerType == 0) {
+            PlayerInput playerInput = new PlayerInput(boardController, mainFrame);
+        } else {
+            //...
+        }
 
         // Main game loop
         double previousTick = System.currentTimeMillis();

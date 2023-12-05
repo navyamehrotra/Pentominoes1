@@ -107,13 +107,17 @@ public class BoardController {
         }
     }
 
-    private int getGeometricCenter(int[] coords) {
-        int sum = 0;
+    private int getCenter(int[] coords) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            sum += coords[i];
+            min = Math.min(coords[i], min);
+            max = Math.max(coords[i], max);
         }
-        return sum / TetrisConstants.PIECE_SIZE;
+
+        return (min + max) / 2; 
     }
+
     
     public void rotatePentomino() {
         int id = boardValues[yCoords[0]][xCoords[0]];
@@ -122,8 +126,8 @@ public class BoardController {
             }
         
             
-        int centerX = getGeometricCenter(xCoords);
-        int centerY = getGeometricCenter(yCoords);
+        int centerX = getCenter(xCoords);
+        int centerY = getCenter(yCoords);
     
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             int oldX = xCoords[i];
