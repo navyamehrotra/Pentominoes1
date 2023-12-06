@@ -11,12 +11,24 @@ public class SearchBot {
     private ArrayList<Double> heureticWeights;
 
     // The result of a search is saved here, to be translated to input later
-    private int[] bestXCoords;
-    private int[] bestYCoords;
+    public int[] bestXCoords;
+    public int[] bestYCoords;
+    public Integer[] bestRecipe;
+    public BoardController mainBoardController;
 
-    public SearchBot() {
+
+    private int indInRecipe = 0;
+    private int searchDepth;
+    private boolean enabled;
+
+    public SearchBot(int searchDepth) {
         heuretics = new ArrayList<>();
         heureticWeights = new ArrayList<>();
+        this.searchDepth = searchDepth;
+    }
+
+    public void Init(BoardController mainBoardController) {
+        this.mainBoardController = mainBoardController;
     }
 
     public void clearHeuretics() {
@@ -29,14 +41,53 @@ public class SearchBot {
         heureticWeights.add(weight);
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setSearchDepth(int depth) {
+        searchDepth = depth;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void produceInput() {
+        if (!enabled) {
+            return;
+        }
+
+        while (bestRecipe != null && indInRecipe < bestRecipe.length && indInRecipe >= 0 && bestRecipe[indInRecipe] != 1) {
+            switch (bestRecipe[indInRecipe]) {
+                case 0:
+                    mainBoardController.rotatePentomino(1);
+                    break;
+                case 2:
+                    mainBoardController.move(1, 0);
+                    break;
+                case 3:
+                    mainBoardController.move(-1, 0);
+                    break;
+            }
+
+            indInRecipe++;
+        }
+
+        indInRecipe++;
+    }
+
     /**
      * Heuretics based search for the best move possible.
      * @param boardController - values used for the search. It's assumed that there's a piece currently falling down.
      * @param searchDepth - an integer >= 0. The larger, the more moves ahead are considered.
      */
-    public void pickTheBestMove(BoardController boardController, int searchDepth) {
-        testBoardController = new BoardController(boardController, new ScoreController());
-        pickTheBestMove(searchDepth, true);
+    public void pickTheBestMove(BoardController boardController) {
+        if (enabled) {
+            testBoardController = new BoardController(boardController, null, null);
+            pickTheBestMove(searchDepth, true);
+            indInRecipe = 0;
+        }
     }
 
     /**
@@ -50,14 +101,18 @@ public class SearchBot {
     private double pickTheBestMove(int searchDepth, boolean baseCall) {
         // Get all of the possible placement positions for the falling piece
         ArrayList<int[]> possiblePlacementsX = new ArrayList<>();        
-        ArrayList<int[]> possiblePlacementsY = new ArrayList<>();
-        PlacementGenerator.getAllPossiblePlacements(testBoardController, possiblePlacementsX, possiblePlacementsY);
+        ArrayList<int[]> possiblePlacementsY = new ArrayList<>();        
+        ArrayList<Integer[]> possiblePlacementsRecipes = new ArrayList<>();
+
+        PlacementGenerator.getAllPossiblePlacements(testBoardController, possiblePlacementsX, possiblePlacementsY, possiblePlacementsRecipes);
         testBoardController.removeCurrentPiece();
 
         // Judge all of the possible placement positions
         Double bestScore = null;
         for (int i = 0; i < possiblePlacementsX.size(); i++) {
-            testBoardController.spawnPiece(possiblePlacementsX.get(i), possiblePlacementsY.get(i));
+            int[][] copy = testBoardController.getCopyOfValues();
+            testBoardController.spawnPiece(possiblePlacementsX.get(i), possiblePlacementsY.get(i), 1);
+            testBoardController.checkAndClearLines();
 
             Double score = null;
             if (searchDepth == 0) {
@@ -66,16 +121,17 @@ public class SearchBot {
                 score = worstScenarioScore(searchDepth);
             }
 
-            if (score > bestScore) {
+            if (bestScore == null || score > bestScore) {
                 bestScore = score;
 
                 if (baseCall) {
                     bestXCoords = possiblePlacementsX.get(i);
                     bestYCoords = possiblePlacementsY.get(i);
+                    bestRecipe = possiblePlacementsRecipes.get(i);
                 }
             }
 
-            testBoardController.removeCurrentPiece();
+            testBoardController.setValues(copy);
         }
 
         return bestScore;

@@ -13,7 +13,7 @@ public class TotalBlocks implements Heuretic {
         int count = 0;
         for (int y = 0; y < TetrisConstants.BOARD_HEIGHT; y++) {
             for (int x = 0; x < TetrisConstants.BOARD_WIDTH; x++) {
-                if (boardController.getIDInCell(y, x) == 1) {
+                if (boardController.getIDInCell(y, x) != 0) {
                     count++;
                 }
             }
