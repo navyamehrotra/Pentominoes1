@@ -1,7 +1,11 @@
 import Constants.TetrisConstants;
+import Heuretics.MaxHeight;
+import Heuretics.MeanColumnHeight;
+import Heuretics.TotalBlocks;
 import TetrisControllers.BoardController;
 import TetrisControllers.PlayerInput;
 import TetrisControllers.ScoreController;
+import TetrisControllers.SearchBot;
 import TetrisGUI.BoardUI;
 import TetrisGUI.MainUIFrame;
 import TetrisGUI.ScoreUI;
@@ -12,23 +16,25 @@ public class TetrisRun {
 
     public static void main(String[] args) {
         // playerType 0 is for the human player, other values are for bots
-        int playerType = 0;
+        SearchBot searchBot = null;
+        
+        // Heuretics definition
+        searchBot = new SearchBot(2);
+        //Ty_SimpleHeuretics(searchBot);
+        Ty_BetterStrategy(searchBot);
+
 
         // Initializing controllers
         ScoreController scoreController = new ScoreController();
-        BoardController boardController = new BoardController(scoreController);
+        BoardController boardController = new BoardController(scoreController, searchBot);
+
+        PlayerInput playerInput = new PlayerInput(boardController);
 
         // Initializing UI components
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
-        MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController);
-
-        if (playerType == 0) {
-            PlayerInput playerInput = new PlayerInput(boardController, mainFrame);
-        } else {
-            //...
-        }
+        MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController, playerInput, searchBot);
 
 
         // Main game loop
@@ -44,9 +50,12 @@ public class TetrisRun {
 
             if(isRunning) {
                 if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
+                    searchBot.produceInput();
                     isRunning = boardController.tick();
+
                     mainFrame.markForUpdate();
-                    previousTick += TetrisConstants.TICK_DELTA;
+                    //previousTick += TetrisConstants.TICK_DELTA;
+                    previousTick = System.currentTimeMillis();
                 }
 
                 if (mainFrame.isMarkedForUpdate()) {
@@ -56,5 +65,14 @@ public class TetrisRun {
             }
         }
         
+    }
+
+    private static void Ty_SimpleStrategy(SearchBot searchBot) {
+        searchBot.addHeuretic(new MaxHeight(), 1);
+    }
+
+    private static void Ty_BetterStrategy(SearchBot searchBot) {
+        searchBot.addHeuretic(new TotalBlocks(), -100);
+        searchBot.addHeuretic(new MaxHeight(), 1);
     }
 }

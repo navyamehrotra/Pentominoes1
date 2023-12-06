@@ -5,7 +5,9 @@ import java.util.Arrays;
 import javax.swing.*;
 
 import TetrisControllers.BoardController;
+import TetrisControllers.PlayerInput;
 import TetrisControllers.ScoreController;
+import TetrisControllers.SearchBot;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,10 +27,15 @@ public class MainUIFrame {
     private final int RIGHT_PANEL_MARGINS = 7;
 
     private boolean markedForUpdate;
+    private PlayerInput playerInput;
+    private SearchBot searchBot;
 
-    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController) {
+    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot) {
         this.boardUI = boardUI;
         this.scoreUI = scoreUI;
+        this.playerInput = playerInput;
+        this.searchBot = searchBot;
+        playerInput.Init(this);
 
         // Setup the frame
         frame = new JFrame();
@@ -48,8 +55,22 @@ public class MainUIFrame {
 
         // Create the buttons
         JButton reset = new JButton("Reset");
+
+        JComboBox<String> playerChoice = new JComboBox<String>();
+        playerChoice.addItem("Human");        
+        playerChoice.addItem("Bot (main) - 1 depth");
+        playerChoice.addItem("Bot - 2 depth");
+        playerChoice.addItem("Bot - 3 depth");
+
         JButton play = new JButton("Play");
         JButton quit = new JButton("Quit");
+
+        playerChoice.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent itemEvent) {
+                playerSelectionChanged(playerChoice.getSelectedIndex());
+            }
+        });
+        playerSelectionChanged(0);
 
         play.addActionListener(new ActionListener() {
             @Override
@@ -103,6 +124,7 @@ public class MainUIFrame {
         gbc.weighty = 0;
 
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
+        rightPanel.add(playerChoice, gbc);
         rightPanel.add(play, gbc);
         rightPanel.add(scoreUI.update(), gbc);
         rightPanel.add(quit, gbc);
@@ -119,6 +141,17 @@ public class MainUIFrame {
         leftPanel.setPreferredSize(new Dimension(0, 0));
         frame.setVisible(true);
         frameSizeChanged(true);
+    }
+
+    public void playerSelectionChanged(int i) {
+        if (i == 0) {
+            playerInput.setEnabled(true);
+            searchBot.setEnabled(false);
+        } else {
+            playerInput.setEnabled(false);
+            searchBot.setEnabled(true);
+            searchBot.setSearchDepth(i - 1);
+        }
     }
 
     public JFrame getFrame() {
