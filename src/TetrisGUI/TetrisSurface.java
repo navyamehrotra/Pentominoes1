@@ -15,8 +15,6 @@ public class TetrisSurface extends JPanel {
         JPanel cell = new JPanel();
         Color cur = new Color(0, 0, 0);
 
-        System.out.print(id);
-
         if (id == 0) {
             cur = Color.BLACK;
         } else if (id == 1) {

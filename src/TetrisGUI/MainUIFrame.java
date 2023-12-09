@@ -15,8 +15,6 @@ import java.awt.event.*;
 
 public class MainUIFrame {
 
-    public boolean startRunning = false;
-
     private BoardUI boardUI;
     private ScoreUI scoreUI;
 
@@ -26,15 +24,16 @@ public class MainUIFrame {
     private final int RIGHT_PANEL_PREFERRED_WIDTH = 120;
     private final int RIGHT_PANEL_MARGINS = 7;
 
-    private boolean markedForUpdate;
     private PlayerInput playerInput;
     private SearchBot searchBot;
+    private ActionListener startGame;
 
-    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot) {
+    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot, ActionListener startGame) {
         this.boardUI = boardUI;
         this.scoreUI = scoreUI;
         this.playerInput = playerInput;
         this.searchBot = searchBot;
+        this.startGame = startGame;
         playerInput.Init(this);
 
         // Setup the frame
@@ -87,7 +86,7 @@ public class MainUIFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Perform the action you want when the button is clicked
-                startRunning = true;
+                startGame.actionPerformed(new ActionEvent(this, 0, null));
             }
         });
 
@@ -97,7 +96,7 @@ public class MainUIFrame {
                 boardController.reset();
                 scoreController.resetScore();
                 updateAndDisplay();
-                startRunning = true;
+                startGame.actionPerformed(new ActionEvent(this, 0, null));
             }
         });
 
@@ -144,7 +143,7 @@ public class MainUIFrame {
         gbc.weighty = 0;
 
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
-        rightPanel.add(onOffButton, gbc);
+        //rightPanel.add(onOffButton, gbc);
         rightPanel.add(playerChoice, gbc);
         rightPanel.add(play, gbc);
         rightPanel.add(scoreUI.update(), gbc);
@@ -179,17 +178,15 @@ public class MainUIFrame {
         return frame;
     }
 
+    private boolean updating = false;
     public void markForUpdate() {
-        markedForUpdate = true;
-    }
-
-    public boolean isMarkedForUpdate() {
-        return markedForUpdate;
+        if (!updating) {
+            updating = true;
+            updateAndDisplay();
+        }
     }
 
     public void updateAndDisplay() {
-
-        System.out.println("Update");
         // Replace the tetris board with an updated one
         int index = Arrays.asList(frame.getContentPane().getComponents()).indexOf((Component)tetrisBoard);
         frame.remove(tetrisBoard);
@@ -204,7 +201,7 @@ public class MainUIFrame {
         frame.revalidate();
         frame.repaint();
 
-        markedForUpdate = false;
+        updating = false;
     }
 
     private void frameSizeChanged(boolean forceSize) {

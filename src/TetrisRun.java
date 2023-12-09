@@ -38,7 +38,11 @@ public class TetrisRun {
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
-        mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController, playerInput, searchBot);
+        mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController, playerInput, searchBot, new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                startRunning();
+            }
+        });
 
 
         // Main game loop
@@ -66,15 +70,18 @@ public class TetrisRun {
     public static void stopRunning() {
         if (isRunning) {
             isRunning = false;
-            timer.start();
+            timer.stop();
         }
     }
 
     private static void loopIteration() {
         searchBot.produceInput();
         isRunning = boardController.tick();
-
         mainFrame.updateAndDisplay();
+
+        if (!isRunning) {
+            timer.stop();
+        }
     }
 
     private static void Ty_SimpleStrategy(SearchBot searchBot) {
