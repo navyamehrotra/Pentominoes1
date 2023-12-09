@@ -53,15 +53,15 @@ public class MainUIFrame {
         frame.setSize(new Dimension(500, 570));
 
         // Create the buttons
-        ImageIcon resetIcon  = new ImageIcon("src/assets/reset.png"); 
-        ImageIcon playIcon  = new ImageIcon("src/assets/play.png");        
-        ImageIcon quitIcon  = new ImageIcon("src/assets/quit.png"); 
-        ImageIcon tetrisIcon = new ImageIcon("src/assets/vertical_tetris.png");
+        ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
+        ImageIcon playIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/play.png");        
+        ImageIcon quitIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/quit.png"); 
+        ImageIcon tetrisIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/vertical_tetris.png");
 
         tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));
         JButton reset = new JButton(resetIcon);
-        ImageIcon humanIcon = new ImageIcon("src/assets/human.png"); 
-        ImageIcon botIcon = new ImageIcon("src/assets/bot.png"); 
+        ImageIcon humanIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png"); 
+        ImageIcon botIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/bot.png"); 
         JLabel tetris = new JLabel(tetrisIcon);
 
         JComboBox<String> playerChoice = new JComboBox<String>();
