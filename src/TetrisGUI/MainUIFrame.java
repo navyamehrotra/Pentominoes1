@@ -15,26 +15,25 @@ import java.awt.event.*;
 
 public class MainUIFrame {
 
-    public boolean startRunning = false;
-
     private BoardUI boardUI;
     private ScoreUI scoreUI;
 
     private JFrame frame;
     private JPanel tetrisBoard;
 
-    private final int RIGHT_PANEL_PREFERRED_WIDTH = 100;
+    private final int RIGHT_PANEL_PREFERRED_WIDTH = 120;
     private final int RIGHT_PANEL_MARGINS = 7;
 
-    private boolean markedForUpdate;
     private PlayerInput playerInput;
     private SearchBot searchBot;
+    private ActionListener startGame;
 
-    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot) {
+    public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot, ActionListener startGame) {
         this.boardUI = boardUI;
         this.scoreUI = scoreUI;
         this.playerInput = playerInput;
         this.searchBot = searchBot;
+        this.startGame = startGame;
         playerInput.Init(this);
 
         // Setup the frame
@@ -51,10 +50,19 @@ public class MainUIFrame {
         });
 
         frame.setLocationRelativeTo(null);
-        frame.setSize(new Dimension(560, 570));
+        frame.setSize(new Dimension(500, 570));
 
         // Create the buttons
-        JButton reset = new JButton("Reset");
+        ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
+        ImageIcon playIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/play.png");        
+        ImageIcon quitIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/quit.png"); 
+        ImageIcon tetrisIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/vertical_tetris.png");
+
+        tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));
+        JButton reset = new JButton(resetIcon);
+        ImageIcon humanIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png"); 
+        ImageIcon botIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/bot.png"); 
+        JLabel tetris = new JLabel(tetrisIcon);
 
         JComboBox<String> playerChoice = new JComboBox<String>();
         playerChoice.addItem("Human");        
@@ -62,8 +70,10 @@ public class MainUIFrame {
         playerChoice.addItem("Bot - 2 depth");
         playerChoice.addItem("Bot - 3 depth");
 
-        JButton play = new JButton("Play");
-        JButton quit = new JButton("Quit");
+        JButton play = new JButton(playIcon);
+        JButton quit = new JButton(quitIcon);
+        JToggleButton onOffButton = new JToggleButton(botIcon);
+        onOffButton.setSelectedIcon(humanIcon);
 
         playerChoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -76,7 +86,7 @@ public class MainUIFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Perform the action you want when the button is clicked
-                startRunning = true;
+                startGame.actionPerformed(new ActionEvent(this, 0, null));
             }
         });
 
@@ -86,7 +96,15 @@ public class MainUIFrame {
                 boardController.reset();
                 scoreController.resetScore();
                 updateAndDisplay();
-                startRunning = true;
+                startGame.actionPerformed(new ActionEvent(this, 0, null));
+            }
+        });
+
+        onOffButton.addActionListener(e -> {
+            if (onOffButton.isSelected()) {
+                // Put code here
+            } else {
+                // Put code here 
             }
         });
 
@@ -98,8 +116,9 @@ public class MainUIFrame {
         });
 
         // The left panel
-        JPanel leftPanel = new JPanel(new GridBagLayout());
+        JPanel leftPanel = new JPanel(new BorderLayout());
         frame.add(leftPanel);
+        leftPanel.add(tetris, BorderLayout.CENTER);
 
         // The tetris board
         tetrisBoard = boardUI.update();
@@ -110,7 +129,7 @@ public class MainUIFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-        gbc.insets = new Insets(RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS);
+        gbc.insets = new Insets(RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS);
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -124,6 +143,7 @@ public class MainUIFrame {
         gbc.weighty = 0;
 
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
+        //rightPanel.add(onOffButton, gbc);
         rightPanel.add(playerChoice, gbc);
         rightPanel.add(play, gbc);
         rightPanel.add(scoreUI.update(), gbc);
@@ -158,16 +178,15 @@ public class MainUIFrame {
         return frame;
     }
 
+    private boolean updating = false;
     public void markForUpdate() {
-        markedForUpdate = true;
-    }
-
-    public boolean isMarkedForUpdate() {
-        return markedForUpdate;
+        if (!updating) {
+            updating = true;
+            updateAndDisplay();
+        }
     }
 
     public void updateAndDisplay() {
-
         // Replace the tetris board with an updated one
         int index = Arrays.asList(frame.getContentPane().getComponents()).indexOf((Component)tetrisBoard);
         frame.remove(tetrisBoard);
@@ -182,7 +201,7 @@ public class MainUIFrame {
         frame.revalidate();
         frame.repaint();
 
-        markedForUpdate = false;
+        updating = false;
     }
 
     private void frameSizeChanged(boolean forceSize) {

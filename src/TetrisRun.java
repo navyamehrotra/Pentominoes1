@@ -1,7 +1,13 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
 import Constants.TetrisConstants;
 import Heuretics.MaxHeight;
 import Heuretics.MeanColumnHeight;
 import Heuretics.TotalBlocks;
+import Phase1.Search;
 import TetrisControllers.BoardController;
 import TetrisControllers.PlayerInput;
 import TetrisControllers.ScoreController;
@@ -16,8 +22,6 @@ public class TetrisRun {
 
     public static void main(String[] args) {
         // playerType 0 is for the human player, other values are for bots
-        SearchBot searchBot = null;
-        
         // Heuretics definition
         searchBot = new SearchBot(2);
         //Ty_SimpleHeuretics(searchBot);
@@ -26,7 +30,7 @@ public class TetrisRun {
 
         // Initializing controllers
         ScoreController scoreController = new ScoreController();
-        BoardController boardController = new BoardController(scoreController, searchBot);
+        boardController = new BoardController(scoreController, searchBot);
 
         PlayerInput playerInput = new PlayerInput(boardController);
 
@@ -34,37 +38,50 @@ public class TetrisRun {
         TetrisSurface tetrisSurface = new TetrisSurface(boardController);
         BoardUI boardUI = new BoardUI(tetrisSurface);
         ScoreUI scoreUI = new ScoreUI(scoreController);
-        MainUIFrame mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController, playerInput, searchBot);
+        mainFrame = new MainUIFrame(boardUI, scoreUI, boardController, scoreController, playerInput, searchBot, new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                startRunning();
+            }
+        });
 
 
         // Main game loop
-        boolean isRunning = false;
-        double previousTick = System.currentTimeMillis();
-
-        while (true) {
-            if (!isRunning && mainFrame.startRunning) {
-                previousTick = System.currentTimeMillis();
-                isRunning = true;
-                mainFrame.startRunning = false;
+        timer = new Timer(TetrisConstants.TICK_DELTA, new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                loopIteration();
             }
-
-            if(isRunning) {
-                if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
-                    searchBot.produceInput();
-                    isRunning = boardController.tick();
-
-                    mainFrame.markForUpdate();
-                    //previousTick += TetrisConstants.TICK_DELTA;
-                    previousTick = System.currentTimeMillis();
-                }
-
-                if (mainFrame.isMarkedForUpdate()) {
-                    mainFrame.updateAndDisplay();
-                }
-                mainFrame.startRunning = false;
-            }
-        }
+        });
         
+    }
+
+    private static Timer timer;
+    private static boolean isRunning = false;
+    private static MainUIFrame mainFrame;
+    private static BoardController boardController;
+    private static SearchBot searchBot;
+
+    public static void startRunning() {
+        if (!isRunning) {
+            isRunning = true;
+            timer.start();
+        }        
+    }
+
+    public static void stopRunning() {
+        if (isRunning) {
+            isRunning = false;
+            timer.stop();
+        }
+    }
+
+    private static void loopIteration() {
+        searchBot.produceInput();
+        isRunning = boardController.tick();
+        mainFrame.updateAndDisplay();
+
+        if (!isRunning) {
+            timer.stop();
+        }
     }
 
     private static void Ty_SimpleStrategy(SearchBot searchBot) {

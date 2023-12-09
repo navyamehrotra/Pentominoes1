@@ -21,7 +21,7 @@ public class ScoreController {
         int count = 0;
         
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("highScores.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/highScores.txt"));
             String line;
             while ((line = reader.readLine()) != null) {
                 highScores[count] = Integer.parseInt(line);
@@ -36,7 +36,7 @@ public class ScoreController {
 
     public void writeHighScoresToFile() {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("highScores.txt"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(System.getProperty("user.dir") + "/highScores.txt"));
             for (int score : highScores) {
                 writer.write(String.valueOf(score));
                 writer.newLine();
