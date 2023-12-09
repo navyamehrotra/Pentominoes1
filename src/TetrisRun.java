@@ -40,16 +40,24 @@ public class TetrisRun {
         // Main game loop
         boolean isRunning = false;
         double previousTick = System.currentTimeMillis();
+        boolean mainLoop = true;
 
-        while (true) {
+        while (mainLoop) {
+                            //System.out.println(isRunning + " " + mainFrame.startRunning);
+
             if (!isRunning && mainFrame.startRunning) {
                 previousTick = System.currentTimeMillis();
                 isRunning = true;
                 mainFrame.startRunning = false;
+                System.out.println("running2");
+
             }
 
             if(isRunning) {
+                                    System.out.println("running");
+
                 if (System.currentTimeMillis() - previousTick >= TetrisConstants.TICK_DELTA) {
+                    System.out.println("loops");
                     searchBot.produceInput();
                     isRunning = boardController.tick();
 

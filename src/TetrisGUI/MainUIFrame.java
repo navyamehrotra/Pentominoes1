@@ -23,7 +23,7 @@ public class MainUIFrame {
     private JFrame frame;
     private JPanel tetrisBoard;
 
-    private final int RIGHT_PANEL_PREFERRED_WIDTH = 100;
+    private final int RIGHT_PANEL_PREFERRED_WIDTH = 120;
     private final int RIGHT_PANEL_MARGINS = 7;
 
     private boolean markedForUpdate;
@@ -51,10 +51,17 @@ public class MainUIFrame {
         });
 
         frame.setLocationRelativeTo(null);
-        frame.setSize(new Dimension(560, 570));
+        frame.setSize(new Dimension(500, 570));
 
         // Create the buttons
-        JButton reset = new JButton("Reset");
+        ImageIcon resetIcon  = new ImageIcon("src/assets/reset.png"); 
+        ImageIcon playIcon  = new ImageIcon("src/assets/play.png");        
+        ImageIcon quitIcon  = new ImageIcon("src/assets/quit.png"); 
+        ImageIcon tetrisIcon = new ImageIcon("src/assets/vertical_tetris.png");
+
+        tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));
+        JButton reset = new JButton(resetIcon);
+        JLabel tetris = new JLabel(tetrisIcon);
 
         JComboBox<String> playerChoice = new JComboBox<String>();
         playerChoice.addItem("Human");        
@@ -62,8 +69,8 @@ public class MainUIFrame {
         playerChoice.addItem("Bot - 2 depth");
         playerChoice.addItem("Bot - 3 depth");
 
-        JButton play = new JButton("Play");
-        JButton quit = new JButton("Quit");
+        JButton play = new JButton(playIcon);
+        JButton quit = new JButton(quitIcon);
 
         playerChoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -98,8 +105,9 @@ public class MainUIFrame {
         });
 
         // The left panel
-        JPanel leftPanel = new JPanel(new GridBagLayout());
+        JPanel leftPanel = new JPanel(new BorderLayout());
         frame.add(leftPanel);
+        leftPanel.add(tetris, BorderLayout.CENTER);
 
         // The tetris board
         tetrisBoard = boardUI.update();
@@ -110,7 +118,7 @@ public class MainUIFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-        gbc.insets = new Insets(RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS ,RIGHT_PANEL_MARGINS);
+        gbc.insets = new Insets(RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS, RIGHT_PANEL_MARGINS);
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -168,6 +176,7 @@ public class MainUIFrame {
 
     public void updateAndDisplay() {
 
+        System.out.println("Update");
         // Replace the tetris board with an updated one
         int index = Arrays.asList(frame.getContentPane().getComponents()).indexOf((Component)tetrisBoard);
         frame.remove(tetrisBoard);

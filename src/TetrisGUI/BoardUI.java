@@ -28,6 +28,7 @@ public class BoardUI {
             }
         }
 
+        System.out.println();
         return surface;
     }
     
