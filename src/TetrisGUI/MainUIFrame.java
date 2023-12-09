@@ -61,6 +61,8 @@ public class MainUIFrame {
 
         tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));
         JButton reset = new JButton(resetIcon);
+        ImageIcon humanIcon = new ImageIcon("src/assets/human.png"); 
+        ImageIcon botIcon = new ImageIcon("src/assets/bot.png"); 
         JLabel tetris = new JLabel(tetrisIcon);
 
         JComboBox<String> playerChoice = new JComboBox<String>();
@@ -71,6 +73,8 @@ public class MainUIFrame {
 
         JButton play = new JButton(playIcon);
         JButton quit = new JButton(quitIcon);
+        JToggleButton onOffButton = new JToggleButton(botIcon);
+        onOffButton.setSelectedIcon(humanIcon);
 
         playerChoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -94,6 +98,14 @@ public class MainUIFrame {
                 scoreController.resetScore();
                 updateAndDisplay();
                 startRunning = true;
+            }
+        });
+
+        onOffButton.addActionListener(e -> {
+            if (onOffButton.isSelected()) {
+                // Put code here
+            } else {
+                // Put code here 
             }
         });
 
@@ -132,6 +144,7 @@ public class MainUIFrame {
         gbc.weighty = 0;
 
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
+        rightPanel.add(onOffButton, gbc);
         rightPanel.add(playerChoice, gbc);
         rightPanel.add(play, gbc);
         rightPanel.add(scoreUI.update(), gbc);
