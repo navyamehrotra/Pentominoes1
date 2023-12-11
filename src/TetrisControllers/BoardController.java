@@ -75,6 +75,10 @@ public class BoardController {
             working = spawnRandomPiece();
         }
 
+        if (!working) {
+            centerBlock = null;
+        }
+
         return working;
     }
 
@@ -157,6 +161,10 @@ public class BoardController {
     }
 
     public boolean rotatePentomino(int direction) {
+        if (centerBlock == null) {
+            return false;
+        }
+
         int id = boardValues[blocks[0].getY()][blocks[0].getX()];
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             boardValues[blocks[i].getY()][blocks[i].getX()] = 0;
@@ -209,22 +217,35 @@ public class BoardController {
     }
 
     public boolean move(int xDelta, int yDelta) {
-        if (canMove(xDelta, yDelta)) {
-            int id = boardValues[blocks[0].getY()][blocks[0].getX()];
+        if (centerBlock == null) {
+            return false;
+        }
+
+        boolean moved = move(xDelta, yDelta, blocks);
+        if (moved) {
+            centerBlock.moveTo(centerBlock.getX() + xDelta, centerBlock.getY() + yDelta);
+        }
+        return moved;
+    }
+
+    public boolean move(int xDelta, int yDelta, TetrisBlock[] tetrisBlock) {
+        if (canMove(xDelta, yDelta, tetrisBlock)) {
+            //int id = boardValues[tetrisBlock[0].getY()][tetrisBlock[0].getX()];
             // Clear current positions
-            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-                boardValues[blocks[i].getY()][blocks[i].getX()] = 0;
+            int[] ids = new int[tetrisBlock.length];
+            for (int i = 0; i < tetrisBlock.length; i++) {
+                ids[i] = boardValues[tetrisBlock[i].getY()][tetrisBlock[i].getX()];
+                boardValues[tetrisBlock[i].getY()][tetrisBlock[i].getX()] = 0;
             }
 
             // Update coordinates
-            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-                blocks[i].moveTo(blocks[i].getX() + xDelta, blocks[i].getY() + yDelta);
+            for (int i = 0; i < tetrisBlock.length; i++) {
+                tetrisBlock[i].moveTo(tetrisBlock[i].getX() + xDelta, tetrisBlock[i].getY() + yDelta);
             }
-            centerBlock.moveTo(centerBlock.getX() + xDelta, centerBlock.getY() + yDelta);
 
             // Place piece in new position
-            for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-                boardValues[blocks[i].getY()][blocks[i].getX()] = id;
+            for (int i = 0; i < tetrisBlock.length; i++) {
+                boardValues[tetrisBlock[i].getY()][tetrisBlock[i].getX()] = ids[i];
             }
         } else {
             return false;
@@ -234,13 +255,13 @@ public class BoardController {
     }
 
     public boolean canMove(int xDelta, int yDelta) {
-        if (centerBlock == null) {
-            return false;
-        }
+        return canMove(xDelta, yDelta, blocks);
+    }
 
-        for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
-            int newX = blocks[i].getX() + xDelta;
-            int newY = blocks[i].getY() + yDelta;
+    public boolean canMove(int xDelta, int yDelta, TetrisBlock[] tetrisBlock) {
+        for (int i = 0; i < tetrisBlock.length; i++) {
+            int newX = tetrisBlock[i].getX() + xDelta;
+            int newY = tetrisBlock[i].getY() + yDelta;
 
             // Check board boundaries
             if (newX < 0 || newX >= TetrisConstants.BOARD_WIDTH || newY < 0 || newY >= TetrisConstants.BOARD_HEIGHT) {
@@ -251,8 +272,8 @@ public class BoardController {
             if (boardValues[newY][newX] != 0) {
                 // Exclude collision detection with itself
                 boolean occupiedByItself = false;
-                for (int j = 0; j < TetrisConstants.PIECE_SIZE; j++) {
-                    if (i != j && blocks[j].getX() == newX && blocks[j].getY() == newY) {
+                for (int j = 0; j < tetrisBlock.length; j++) {
+                    if (i != j && tetrisBlock[j].getX() == newX && tetrisBlock[j].getY() == newY) {
                         occupiedByItself = true;
                         break;
                     }
@@ -369,45 +390,80 @@ public class BoardController {
     // Clears a line by moving the shapes above it into the newly-emptied space
     // as well as making sure points are awarded for clearing lines
     private void clearLine(int row) {
-        for (int r = row; r > 0; r--) {
+        /*for (int r = row; r > 0; r--) {
             for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
-                DFS(r, col);
                 boardValues[r][col] = boardValues[r - 1][col];
             }
-        }
+        }*/
 
         for (int col = 0; col < TetrisConstants.BOARD_WIDTH; col++) {
-            boardValues[0][col] = 0;
+            boardValues[row][col] = 0;
         }
 
+        ArrayList<ArrayList<TetrisBlock>> groups = DFS();        
+        ArrayList<TetrisBlock[]> groups2 = new ArrayList<>();
+
+        for(ArrayList<TetrisBlock> group : groups) {
+            TetrisBlock[] array = group.toArray(new TetrisBlock[0]);
+            groups2.add(array);
+        }
+
+        boolean movedDown = false;
+        do {
+            movedDown = false;
+            for (int i = 0; i < groups.size(); i++) {
+                boolean moved = move(0, 1, groups2.get(i));
+                if (moved) {
+                    movedDown = true;
+                }
+            }
+        } while(movedDown);
+        
         if (scoreController != null) {
             scoreController.addPoint();
         }
+
+        checkAndClearLines();
     }
 
     // Takes care of the advanced gravity by performing a depth-first search
-    private void DFS(int row, int col) {
+    private ArrayList<ArrayList<TetrisBlock>> DFS() {
         boolean[][] checked = new boolean[TetrisConstants.BOARD_WIDTH][TetrisConstants.BOARD_HEIGHT];
-        checked[row][col] = explore(row, col);
+
+        ArrayList<ArrayList<TetrisBlock>> groups = new ArrayList<>();
+        for (int r = 0; r < TetrisConstants.BOARD_HEIGHT; r++) {
+            for (int c = 0; c < TetrisConstants.BOARD_WIDTH; c++) {
+                if (boardValues[r][c] != 0 && !checked[c][r]) {
+                    ArrayList<TetrisBlock> group = new ArrayList<>();
+                    explore(r, c, group, checked);
+                    groups.add(group);
+                }
+            }
+        }
+
+        return groups;
     }
 
     // Locates all filled cells that together form a shape
     // that is meant to fall a specific amount of lines
-    private boolean explore(int row, int col) {
-        ArrayList<Integer> blocksX = new ArrayList<>();
-        ArrayList<Integer> blocksY = new ArrayList<>();
+    private void explore(int row, int col, ArrayList<TetrisBlock> group, boolean[][] checked) {
+        group.add(new TetrisBlock(col, row));
+        checked[col][row] = true;
 
-        for (int r = row; r > 0; r--) {
-            for (int c = col; c < TetrisConstants.BOARD_WIDTH; c++) {
-                if (boardValues[r][c] != 0) {
-                    blocksX.add(r);
-                    blocksY.add(c);
-                    explore(r, c);
-                    return true;
-                }
+        final int[] colDelta = { 0, 0, -1, 1 };
+        final int[] rowDelta = { -1, 1, 0, 0 };
+
+        for (int i = 0; i < colDelta.length; i++) {
+            int newCol = col + colDelta[i];
+            int newRow = row + rowDelta[i];
+
+            if (newCol >= 0 && newCol < TetrisConstants.BOARD_WIDTH 
+                && newRow >= 0 && newRow < TetrisConstants.BOARD_HEIGHT
+                && boardValues[newRow][newCol] != 0 && !checked[newCol][newRow]) {
+                explore(newRow, newCol, group, checked);
             }
         }
-        return false;
+        
     }
 
 }
