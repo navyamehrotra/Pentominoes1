@@ -27,6 +27,8 @@ public class MainUIFrame {
     private PlayerInput playerInput;
     private SearchBot searchBot;
     private ActionListener startGame;
+    private BoardController boardController;
+    private ScoreController scoreController;
 
     public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot, ActionListener startGame) {
         this.boardUI = boardUI;
@@ -34,6 +36,8 @@ public class MainUIFrame {
         this.playerInput = playerInput;
         this.searchBot = searchBot;
         this.startGame = startGame;
+        this.boardController = boardController;
+        this.scoreController = scoreController;
         playerInput.Init(this);
 
         // Setup the frame
@@ -93,10 +97,7 @@ public class MainUIFrame {
         reset.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boardController.reset();
-                scoreController.resetScore();
-                updateAndDisplay();
-                startGame.actionPerformed(new ActionEvent(this, 0, null));
+                resetGame();
             }
         });
 
@@ -161,6 +162,13 @@ public class MainUIFrame {
         leftPanel.setPreferredSize(new Dimension(0, 0));
         frame.setVisible(true);
         frameSizeChanged(true);
+    }
+
+    public void resetGame() {
+        boardController.reset();
+        scoreController.resetScore();
+        updateAndDisplay();
+        startGame.actionPerformed(new ActionEvent(this, 0, null));
     }
 
     public void playerSelectionChanged(int i) {
