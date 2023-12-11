@@ -6,7 +6,10 @@ import javax.swing.Timer;
 import Constants.TetrisConstants;
 import Heuretics.MaxHeight;
 import Heuretics.MeanColumnHeight;
+import Heuretics.PreferRight;
 import Heuretics.TotalBlocks;
+import Heuretics.TotalHoles;
+import Heuretics.WeightedHeight;
 import Phase1.Search;
 import TetrisControllers.BoardController;
 import TetrisControllers.PlayerInput;
@@ -23,7 +26,7 @@ public class TetrisRun {
     public static void main(String[] args) {
         // playerType 0 is for the human player, other values are for bots
         // Heuretics definition
-        searchBot = new SearchBot(2);
+        searchBot = new SearchBot(0);
         //Ty_SimpleHeuretics(searchBot);
         Ty_BetterStrategy(searchBot);
 
@@ -89,7 +92,11 @@ public class TetrisRun {
     }
 
     private static void Ty_BetterStrategy(SearchBot searchBot) {
-        searchBot.addHeuretic(new TotalBlocks(), -100);
-        searchBot.addHeuretic(new MaxHeight(), 1);
+        searchBot.addHeuretic(new TotalBlocks(), -1000);
+        searchBot.addHeuretic(new MaxHeight(), 100);        
+        /*searchBot.addHeuretic(new WeightedHeight(), -10);        
+        */
+        searchBot.addHeuretic(new TotalHoles(), -10);
+        searchBot.addHeuretic(new PreferRight(), -1);
     }
 }

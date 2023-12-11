@@ -107,7 +107,7 @@ public class PentominoBuilder {
         for(int i=0;i<basicDatabase.length;i++)
         {
             //make a piece with maximal number of mutations an space
-            int[][][] tempDatabase = new int[8][5][5];
+            int[][][] tempDatabase = new int[4][5][5];
 
             //take a piece of basic database, make it bigger so it fits in the 5*5, rotate it j times, move it to the left upper corner so duplicates will be the same
             for (int j = 0; j < 4; j++) {
@@ -115,12 +115,12 @@ public class PentominoBuilder {
             }
 
             //same as above, but flipping it
-            for (int j = 0; j < 4; j++) {
-                tempDatabase[4 + j] = moveToAbove(rotate(verticalFlip(makeBigger(basicDatabase[i], 5)), j));
-            }
+            /*for (int j = 0; j < 4; j++) {
+                tempDatabase[j] = moveToAbove(rotate(verticalFlip(makeBigger(basicDatabase[i], 5)), j));
+            }*/
 
             //erase duplicates
-            tempDatabase=eraseDuplicates(tempDatabase);
+            tempDatabase = eraseDuplicates(tempDatabase);
 
             //erase empty spaces in every piece
             for(int j=0;j<tempDatabase.length;j++)

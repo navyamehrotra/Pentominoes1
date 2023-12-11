@@ -20,6 +20,7 @@ public class BoardController {
 
     public BoardController(BoardController template, ScoreController scoreController, SearchBot searchBot) {
         this(scoreController, searchBot);
+        this.bestOrderInd = template.bestOrderInd;
 
         for (int y = 0; y < TetrisConstants.BOARD_HEIGHT; y++) {
             for (int x = 0; x < TetrisConstants.BOARD_WIDTH; x++) {
@@ -107,10 +108,33 @@ public class BoardController {
         return a;
     }
 
+    public void startBestOrderMode(boolean start) {
+        bestOrderMode = start;
+        bestOrderInd = 0;
+    }
+
+    private boolean bestOrderMode = false;
+    public int bestOrderInd = 0;
+    private int[] bestOrderPentominoes = { 4, 8, 0, 7, 3, 9, 6, 11, 1, 10, 2, 5};
+    private int[] bestOrderRotations = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     public boolean spawnRandomPiece() {
         // Get a random pentomino with random rotation
+
         int pentominoID = (int) (Math.random() * PentominoDatabase.data.length);
         int rotationID = (int) (Math.random() * PentominoDatabase.data[pentominoID].length);
+
+        if (bestOrderMode) {
+            if (bestOrderInd < bestOrderPentominoes.length) {
+                pentominoID = bestOrderPentominoes[bestOrderInd];
+            }
+
+            if (bestOrderInd < bestOrderRotations.length) {
+                rotationID = bestOrderRotations[bestOrderInd];
+            }
+
+            bestOrderInd++;
+        }
 
         boolean canSpawn = spawnPiece(pentominoID, rotationID);
 
@@ -166,6 +190,7 @@ public class BoardController {
         }
 
         int id = boardValues[blocks[0].getY()][blocks[0].getX()];
+
         for (int i = 0; i < TetrisConstants.PIECE_SIZE; i++) {
             boardValues[blocks[i].getY()][blocks[i].getX()] = 0;
         }
