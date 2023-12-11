@@ -27,6 +27,8 @@ public class MainUIFrame {
     private PlayerInput playerInput;
     private SearchBot searchBot;
     private ActionListener startGame;
+    private BoardController boardController;
+    private ScoreController scoreController;
 
     public MainUIFrame(BoardUI boardUI, ScoreUI scoreUI, BoardController boardController, ScoreController scoreController, PlayerInput playerInput, SearchBot searchBot, ActionListener startGame) {
         this.boardUI = boardUI;
@@ -34,6 +36,8 @@ public class MainUIFrame {
         this.playerInput = playerInput;
         this.searchBot = searchBot;
         this.startGame = startGame;
+        this.boardController = boardController;
+        this.scoreController = scoreController;
         playerInput.Init(this);
 
         // Setup the frame
@@ -52,13 +56,21 @@ public class MainUIFrame {
         frame.setLocationRelativeTo(null);
         frame.setSize(new Dimension(500, 570));
 
+
         // Create the buttons
         ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
         ImageIcon playIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/play.png");        
         ImageIcon quitIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/quit.png"); 
         ImageIcon tetrisIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/vertical_tetris.png");
+        ImageIcon bestOrderIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/BEST ORDER MODE.png");
 
-        tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));
+        double scale = (double)0.9 * RIGHT_PANEL_PREFERRED_WIDTH / bestOrderIcon.getIconWidth();
+        int newWidth = (int)(bestOrderIcon.getIconWidth() * scale);
+        int newHeight = (int)(scale * bestOrderIcon.getIconHeight());
+        bestOrderIcon = new ImageIcon(bestOrderIcon.getImage().getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT));
+
+        tetrisIcon = new ImageIcon(tetrisIcon.getImage().getScaledInstance(80, 500 , Image.SCALE_DEFAULT));        
+
         JButton reset = new JButton(resetIcon);
         ImageIcon humanIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png"); 
         ImageIcon botIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/bot.png"); 
@@ -71,9 +83,10 @@ public class MainUIFrame {
         playerChoice.addItem("Bot - 3 depth");
 
         JButton play = new JButton(playIcon);
+        JButton bestOrderMode = new JButton(bestOrderIcon);
         JButton quit = new JButton(quitIcon);
-        JToggleButton onOffButton = new JToggleButton(botIcon);
-        onOffButton.setSelectedIcon(humanIcon);
+        JToggleButton onOffButton = new JToggleButton(humanIcon);
+        onOffButton.setSelectedIcon(botIcon);
 
         playerChoice.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -87,24 +100,36 @@ public class MainUIFrame {
             public void actionPerformed(ActionEvent e) {
                 // Perform the action you want when the button is clicked
                 startGame.actionPerformed(new ActionEvent(this, 0, null));
+                boardController.startBestOrderMode(false);
             }
         });
 
         reset.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boardController.reset();
-                scoreController.resetScore();
-                updateAndDisplay();
-                startGame.actionPerformed(new ActionEvent(this, 0, null));
+                resetGame();
+                boardController.startBestOrderMode(false);
+            }
+        });
+
+        bestOrderMode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onOffButton.setSelected(true);
+                resetGame();
+                playerInput.setEnabled(false);
+                searchBot.setEnabled(true);
+                boardController.startBestOrderMode(true);
             }
         });
 
         onOffButton.addActionListener(e -> {
-            if (onOffButton.isSelected()) {
-                // Put code here
+            if (!onOffButton.isSelected()) {
+                playerInput.setEnabled(true);
+                searchBot.setEnabled(false);
             } else {
-                // Put code here 
+                playerInput.setEnabled(false);
+                searchBot.setEnabled(true);
             }
         });
 
@@ -136,6 +161,7 @@ public class MainUIFrame {
         gbc.weightx = 1;
 
         rightPanel.add(reset, gbc);    
+        rightPanel.add(bestOrderMode, gbc);
 
         // Empty panel that fills space
         gbc.weighty = 1;
@@ -143,8 +169,8 @@ public class MainUIFrame {
         gbc.weighty = 0;
 
         gbc.anchor = GridBagConstraints.LAST_LINE_START;
-        //rightPanel.add(onOffButton, gbc);
-        rightPanel.add(playerChoice, gbc);
+        rightPanel.add(onOffButton, gbc);
+        //rightPanel.add(playerChoice, gbc);
         rightPanel.add(play, gbc);
         rightPanel.add(scoreUI.update(), gbc);
         rightPanel.add(quit, gbc);
@@ -160,7 +186,15 @@ public class MainUIFrame {
         rightPanel.setPreferredSize(new Dimension(0, 0));
         leftPanel.setPreferredSize(new Dimension(0, 0));
         frame.setVisible(true);
+
         frameSizeChanged(true);
+    }
+
+    public void resetGame() {
+        boardController.reset();
+        scoreController.resetScore();
+        updateAndDisplay();
+        startGame.actionPerformed(new ActionEvent(this, 0, null));
     }
 
     public void playerSelectionChanged(int i) {

@@ -92,7 +92,7 @@ public class PlacementGenerator {
         }
 
         // Rotation clockwise
-        if (!canReach[currentY][currentX][(rotation + 1) % 4]) {
+        if (boardController.bestOrderInd != 9 && !canReach[currentY][currentX][(rotation + 1) % 4]) {
             if (boardController.rotatePentomino(1)) {
                 moves.add(0);
                 explore(currentX, currentY, (rotation + 1) % 4, canReach, canEnd, boardController, resultXCoords, resultYCoords, resultMoveRecipes, moves);
