@@ -1,4 +1,4 @@
-package customdatatypes;
+package Engine3DStuff.customdatatypes;
 
 public class Triangle {
     public Vector3D[] vertices;

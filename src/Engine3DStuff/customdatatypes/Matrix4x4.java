@@ -1,4 +1,4 @@
-package customdatatypes;
+package Engine3DStuff.customdatatypes;
 
 public class Matrix4x4 {
     public double[][] vals;
