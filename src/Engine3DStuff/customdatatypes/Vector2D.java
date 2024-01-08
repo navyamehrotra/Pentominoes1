@@ -1,4 +1,4 @@
-package customdatatypes;
+package Engine3DStuff.customdatatypes;
 
 public class Vector2D {
     public double x;

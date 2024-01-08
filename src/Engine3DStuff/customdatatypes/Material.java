@@ -1,4 +1,4 @@
-package customdatatypes;
+package Engine3DStuff.customdatatypes;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
