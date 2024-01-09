@@ -1,15 +1,15 @@
+package Phase2;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.Timer;
 
 import Constants.TetrisConstants;
 import Heuretics.MaxHeight;
 import Heuretics.MeanColumnHeight;
-import Heuretics.PreferRight;
 import Heuretics.TotalBlocks;
-import Heuretics.TotalHoles;
-import Heuretics.WeightedHeight;
 import Phase1.Search;
 import TetrisControllers.BoardController;
 import TetrisControllers.PlayerInput;
@@ -20,19 +20,18 @@ import TetrisGUI.MainUIFrame;
 import TetrisGUI.ScoreUI;
 import TetrisGUI.TetrisSurface;
 
-public class TetrisRun {
-
-
+public class Experiments {
     public static void main(String[] args) {
         // playerType 0 is for the human player, other values are for bots
         // Heuretics definition
-        searchBot = new SearchBot(0);
+        searchBot = new SearchBot(2);
         //Ty_SimpleHeuretics(searchBot);
         Ty_BetterStrategy(searchBot);
-
+        
+        
 
         // Initializing controllers
-        ScoreController scoreController = new ScoreController();
+        scoreController = new ScoreController();
         boardController = new BoardController(scoreController, searchBot);
 
         PlayerInput playerInput = new PlayerInput(boardController);
@@ -47,14 +46,21 @@ public class TetrisRun {
             }
         });
 
+        mainFrame.playerSelectionChanged(2);
+
+        isRunning = true;
+        while(true) {
+            loopIteration();
+        }
 
         // Main game loop
-        timer = new Timer(TetrisConstants.TICK_DELTA, new ActionListener() {
+        /*timer = new Timer(1, new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 loopIteration();
             }
         });
-        
+
+        startRunning();*/
     }
 
     private static Timer timer;
@@ -62,20 +68,21 @@ public class TetrisRun {
     private static MainUIFrame mainFrame;
     private static BoardController boardController;
     private static SearchBot searchBot;
+    private static ScoreController scoreController;
 
     public static void startRunning() {
         if (!isRunning) {
-            isRunning = true;
-            timer.start();
+            //isRunning = true;
+            //timer.start();
         }        
     }
 
-    public static void stopRunning() {
+    /*public static void stopRunning() {
         if (isRunning) {
             isRunning = false;
             timer.stop();
         }
-    }
+    }*/
 
     private static void loopIteration() {
         searchBot.produceInput();
@@ -83,7 +90,12 @@ public class TetrisRun {
         mainFrame.updateAndDisplay();
 
         if (!isRunning) {
-            timer.stop();
+            try (FileWriter fileWriter = new FileWriter(System.getProperty("user.dir") + "/experimentResults.txt", true)) {
+		        fileWriter.write("" + scoreController.getCurrentScore() + '\n');
+            }
+            catch(IOException excep) {
+            }
+            mainFrame.resetGame();
         }
     }
 
@@ -92,11 +104,7 @@ public class TetrisRun {
     }
 
     private static void Ty_BetterStrategy(SearchBot searchBot) {
-        searchBot.addHeuretic(new TotalBlocks(), -1000);
-        searchBot.addHeuretic(new MaxHeight(), 100);        
-        /*searchBot.addHeuretic(new WeightedHeight(), -10);        
-        */
-        searchBot.addHeuretic(new TotalHoles(), -10);
-        searchBot.addHeuretic(new PreferRight(), -1);
+        searchBot.addHeuretic(new TotalBlocks(), -100);
+        searchBot.addHeuretic(new MaxHeight(), 1);
     }
 }
