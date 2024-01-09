@@ -17,7 +17,7 @@ public class Search {
 	public static int horizontalGridSize;
 	public static int verticalGridSize;
 	public static int choice;
-	public static boolean useUI = false;
+	public static boolean useUI = true;
 
 	// Asks and stores user choice for the height of the grid to be filled.
 	public static int horizontalSize() {
@@ -247,6 +247,8 @@ public class Search {
 		return recursiveSearch(grid, 0, 0, inputChars);
 	}
 
+	private static int n = 11;
+
 	/**
 	 * Recursive function to try and fill the grid.
 	 *
@@ -260,7 +262,8 @@ public class Search {
 		// If 'row' is equal to the grid height, the grid is filled successfully.
 		// Note that this is because the program starts filling from top-left.
 		if (row == verticalGridSize && col == 0) {
-			return true;
+			n--;
+			return n <= 0;
 		}
 
 		// Jump to the next row once the current row is filled.

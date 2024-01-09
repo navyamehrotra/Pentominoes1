@@ -15,14 +15,14 @@ public class TotalHoles implements Heuretic {
         int XCord = 0;
         int YCord = 0;
 
-        for (int y = 0; y < TetrisConstants.BOARD_HEIGHT; y++) {
+        for (int y = 1; y < TetrisConstants.BOARD_HEIGHT; y++) {
             for (int x = 0; x < TetrisConstants.BOARD_WIDTH; x++) {
                 if (boardController.getIDInCell(y, x) == 0) {
                     XCord = x; 
                     YCord = y;
-                    while ((boardController.getIDInCell(YCord + 1, XCord) != 0) && (YCord < TetrisConstants.BOARD_HEIGHT)) {
+                    while (boardController.getIDInCell(YCord - 1, XCord) != 0) {
                         YCord++;
-                        if ((boardController.getIDInCell(YCord + 1, XCord) == 0) && (YCord < TetrisConstants.BOARD_HEIGHT)) {
+                        if (boardController.getIDInCell(YCord - 1, XCord) == 0) {
                             count++;
                         }
                     }
