@@ -11,7 +11,7 @@ public class Constants {
     // Render constants
     public static final int IMAGE_WIDTH = 150;    
     public static final int IMAGE_HEIGHT = 35;
-    public static final Color SKYBOX_COLOR = new Color(0, 0, 0);//new Color(41, 184, 219); // Color rendered if nothing is visible on a certain pixel
+    public static final Color SKYBOX_COLOR = new Color(255, 255, 255);//new Color(41, 184, 219); // Color rendered if nothing is visible on a certain pixel
     public static final double FOV = 60;
     public static final double NEAR_PLANE = 0.01; // Triangles' pixels need to be at least this far away to be rendered
     public static final double FAR_PLANE = 200; // Triangles' pixels need to be less than this far away to be rendered

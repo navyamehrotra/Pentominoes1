@@ -13,6 +13,7 @@ import Engine3DStuff.Debugging.ModelLoader;
 import Engine3DStuff.customdatatypes.*;
 
 import java.awt.image.BufferedImage;
+import java.awt.Image;
 
 import java.util.*;
 
@@ -33,6 +34,10 @@ public class Engine3D {
     }
 
     public static void main(String[] args) {
+        
+    }
+
+    public static Image sampleImage() {
         Engine3D engine = new Engine3D(500, 400);
 
         // Setup camera data
@@ -49,19 +54,15 @@ public class Engine3D {
         models.addAll(ModelLoader.loadOBJ("monke rainbow"));
 
         //Setup the JFrame
-        JFrame frame = new JFrame();
-        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.LINE_AXIS));
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 400);
+
 
         // Render and display the scene
-        frame.add(engine.render2Panel(camera.getPositionMatrix(), camera.getRotationMatrix(), projectionMatrix, models));
 
-        frame.setVisible(true);
+        return engine.render2Image(camera.getPositionMatrix(), camera.getRotationMatrix(), projectionMatrix, models);
+
     }
 
-    public JPanel render2Panel(Matrix4x4 translationMatrix, Matrix4x4 rotationMatrix, Matrix4x4 projectionMatrix,
+    public Image render2Image(Matrix4x4 translationMatrix, Matrix4x4 rotationMatrix, Matrix4x4 projectionMatrix,
             ArrayList<Object3D> models) {
         Color[][] colorData = renderFrame(translationMatrix, rotationMatrix, projectionMatrix, models);
 
@@ -74,9 +75,10 @@ public class Engine3D {
         }
 
         JPanel panel = new JPanel();
-        panel.add(new JLabel(new ImageIcon(image)));
+        return image;
+        //panel.add(new JLabel(new ImageIcon(image)));
 
-        return panel;
+        //return panel;
     }
 
     /**
