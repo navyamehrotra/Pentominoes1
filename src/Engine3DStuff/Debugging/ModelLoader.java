@@ -34,7 +34,7 @@ public class ModelLoader {
                 String line = scanner.nextLine();
 
                 if (line.startsWith("o ")) { // A new model
-                    currentModel = new Object3D(Constants.BOUNCINESS);
+                    currentModel = new Object3D();
 
                     modelsRead.add(currentModel);
                 }
@@ -139,7 +139,7 @@ public class ModelLoader {
         }
     }
 
-    private static BufferedImage loadTexture(String textureFileName) {
+    public static BufferedImage loadTexture(String textureFileName) {
         //Path path = Paths.get("", "models\\" + textureFileName);
         //File file = new File(path.toAbsolutePath().toString());
 

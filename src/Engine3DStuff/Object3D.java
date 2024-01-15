@@ -17,7 +17,7 @@ public class Object3D {
     private Vector3D rotation;
     private Matrix4x4 rotationMatrix;
 
-    public Object3D(double bounciness) {
+    public Object3D() {
         triangles = new Vector<Triangle>();
 
         position = new Vector3D(0, 0, 0);

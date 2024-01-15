@@ -8,7 +8,17 @@ public class Material {
     public BufferedImage texture;
     public Vector3D textureScale;
     
-    public Material() { }
+    public Material() {
+        
+    }
+
+    public Material(Color color) { 
+        this.color = color;
+    }
+
+    public Material(BufferedImage texture) {
+        this.texture = texture;
+    }
 
     public Color getcolor(Vector2D point) {
         if (texture != null) {
