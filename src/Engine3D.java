@@ -1,13 +1,6 @@
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 
-import Engine3DStuff.Camera;
-import Engine3DStuff.MathUtility;
-import Engine3DStuff.Object3D;
-import Engine3DStuff.Debugging.ModelLoader;
+import Engine3DStuff.*;
 import Engine3DStuff.customdatatypes.*;
 
 import java.awt.image.BufferedImage;
@@ -15,8 +8,7 @@ import java.awt.Image;
 
 import java.util.*;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 
 public class Engine3D {
     public int width;
@@ -31,108 +23,9 @@ public class Engine3D {
         imageData = new Color[width][height];
     }
 
-    public static Image sampleImage() {
-        Engine3D engine = new Engine3D(500, 400);
-
-        // Setup camera data
-        Matrix4x4 projectionMatrix = Matrix4x4.getProjectionMatrix();
-        Vector3D cameraPosition = new Vector3D(6, -8, -12);
-        Vector3D cameraRotation = new Vector3D(90 * Math.PI / 180, 40 * Math.PI / 180, 0 * Math.PI / 180);
-        CameraKeyframe cameraStart = new CameraKeyframe(cameraPosition, cameraRotation, 1);
-        Camera camera = new Camera();
-        camera.appendKeyframes(cameraStart);
-        camera.animate();
-
-        // Load the test models
-        ArrayList<Object3D> models = new ArrayList<>();
-        models.addAll(ModelLoader.loadOBJ("monke rainbow"));
-
-        //Setup the JFrame
-
-
-        // Render and display the scene
-
-        int[][][] testGrid = new int[6][6][6];
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                for (int k = 0; k < 6; k++) {
-                    testGrid[i][j][k] = -1;
-                }
-            }
-        } 
-        testGrid[0] = new int[][]
-        {
-            {-1, -1, -1, -1, -1, -1},
-            {-1, 1, -1, -1, 1, -1},
-            {-1, -1, -1, -1, -1, -1},
-            {-1, 1, -1, 1, -1, 1},
-            {-1, -1, 1, -1, 1, -1},
-            {-1, -1, -1, -1, -1, -1}
-        };
-
-        //right
-        //up
-        //front
-
-
-        return engine.render2Image(camera.getPositionMatrix(), camera.getRotationMatrix(), projectionMatrix, testGrid);
-
-    }
-
-    public Image render2Image(Matrix4x4 translationMatrix, Matrix4x4 rotationMatrix, Matrix4x4 projectionMatrix,
-            int[][][] grid) {
-        ArrayList<Object3D> models = new ArrayList<>();
-
-        int xSize = grid.length;
-        int ySize = grid[0].length;
-        int zSize = grid[0][0].length;
-
-        for (int x = 0; x < xSize; x++) {
-            for (int y = 0; y < ySize; y++) {
-                for (int z = 0; z < zSize; z++) {
-                    if (grid[x][y][z] != -1) {
-                        Object3D cube = new Object3D();
-
-                        Vector2D[] tempUVs = new Vector2D[] {new Vector2D(0, 0), new Vector2D(0, 1), new Vector2D(1, 1)};
-                        Material tempMaterial = new Material(ModelLoader.loadTexture("tetris.png"));
-
-                        Vector3D v0 = new Vector3D(0, 0, 0);
-                        Vector3D v1 = new Vector3D(0, 0, 1);
-                        Vector3D v2 = new Vector3D(0, 1, 0);
-                        Vector3D v3 = new Vector3D(0, 1, 1);
-                        Vector3D v4 = new Vector3D(1, 0, 0);
-                        Vector3D v5 = new Vector3D(1, 0, 1);
-                        Vector3D v6 = new Vector3D(1, 1, 0);
-                        Vector3D v7 = new Vector3D(1, 1, 1);
-
-                        cube.triangles.add(new Triangle(new Vector3D[]{v1, v3, v2}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v0, v1, v2}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v0, v4, v5}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v0, v5, v1}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v4, v6, v7}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v4, v7, v5}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v6, v2, v3}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v6, v3, v7}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v1, v5, v7}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v1, v7, v3}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v0, v6, v4}, tempUVs, tempMaterial));
-                        cube.triangles.add(new Triangle(new Vector3D[]{v0, v2, v6}, tempUVs, tempMaterial));
-                        
-
-                        cube.setPosition(new Vector3D(x - (double)xSize / 2, y - (double)ySize / 2, z - (double)zSize / 2));
-                        models.add(cube);
-                    }
-                }
-            }
-        }
-
-        return render2Image(translationMatrix, rotationMatrix, projectionMatrix, models);
-    }
-
     public Image render2Image(Matrix4x4 translationMatrix, Matrix4x4 rotationMatrix, Matrix4x4 projectionMatrix,
             ArrayList<Object3D> models) {
         Color[][] colorData = renderFrame(translationMatrix, rotationMatrix, projectionMatrix, models);
-
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         for(int x = 0; x < width; x++) {
@@ -141,11 +34,7 @@ public class Engine3D {
             }
         }
 
-        JPanel panel = new JPanel();
         return image;
-        //panel.add(new JLabel(new ImageIcon(image)));
-
-        //return panel;
     }
 
     /**

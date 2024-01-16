@@ -112,13 +112,13 @@ public class Matrix4x4 {
         return identity;
     }
 
-    public static Matrix4x4 getProjectionMatrix() { 
+    public static Matrix4x4 getProjectionMatrix(double width, double height) { 
         // Based on (https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix.html)
         Matrix4x4 projectionMatrix = new Matrix4x4();
 
         // set the basic projection matrix
         double scale = 1 / Math.tan(Constants.FOV * 0.5 * Math.PI / 180); 
-        projectionMatrix.vals[0][0] = scale;  //scale the x coordinates of the projected point 
+        projectionMatrix.vals[0][0] = scale / (width / height);  //scale the x coordinates of the projected point 
         projectionMatrix.vals[1][1] = scale;  //scale the y coordinates of the projected point 
         projectionMatrix.vals[2][2] = -Constants.FAR_PLANE / (Constants.FAR_PLANE - Constants.NEAR_PLANE);  //used to remap z to [0,1] 
         projectionMatrix.vals[3][2] = -Constants.FAR_PLANE * Constants.NEAR_PLANE / (Constants.FAR_PLANE - Constants.NEAR_PLANE);  //used to remap z [0,1] 

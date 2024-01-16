@@ -2,30 +2,27 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import Engine3DStuff.customdatatypes.Vector3D;
+
 public class MainUIFrame {
     // Toly and nat
-    private Engine3D engine3d;
+    private JFrame frame;
+    private ImagePanel mainPanel;
 
-    public static void main(String[] args) {
-
+    public MainUIFrame(Image bgImage) {
         //ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
         //ImageIcon modesIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png");
 
-        JFrame frame = new JFrame();
-
+        frame = new JFrame();
         JPanel buttonPanel = new JPanel();
-
         JButton reset = new JButton("Reset Angle");
-
         JButton compute = new JButton("Compute");
-
         JButton resetAll = new JButton("Reset");
-
         JToggleButton modes = new JToggleButton("Modes");
-
         JToggleButton parcel = new JToggleButton("Poss Mode");
 
-        frame.setContentPane(new ImagePanel(Engine3D.sampleImage()));
+        mainPanel = new ImagePanel(bgImage);
+        frame.setContentPane(mainPanel);
         frame.setSize(500, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
@@ -99,12 +96,18 @@ public class MainUIFrame {
         frame.setVisible(true);
     }
 
-    public MainUIFrame(Engine3D engine3d) {
-        this.engine3d = engine3d;
+    public static void main(String[] args) {
+        Vector3D cameraPosition = new Vector3D(6, -8, -12);
+        Vector3D cameraRotation = new Vector3D(90 * Math.PI / 180, 40 * Math.PI / 180, 0 * Math.PI / 180);
+        Scene3DGenerator tempGenerator = new Scene3DGenerator(500, 300, cameraPosition, cameraRotation);
+        MainUIFrame mainUIFrame = new MainUIFrame(tempGenerator.render2ImageSample());
     }
 
-    public void update() {
-        //JPanel midPanel = engine3d.render2Panel();
-        // do something with it
+    public Dimension getSize() {
+        return frame.getSize();
+    }
+
+    public void update3DImage(Image image) {
+        mainPanel.update(image);
     }
 }
