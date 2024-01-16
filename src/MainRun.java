@@ -11,8 +11,8 @@ public class MainRun {
     private static Vector3D cameraRotation;
 
     public static void main(String[] args) {
-        Vector3D cameraPosition = new Vector3D(0, -12, -12);
-        cameraRotation = new Vector3D(0 * Math.PI / 180, -0 * Math.PI / 180, -40 * Math.PI / 180);
+        Vector3D cameraPosition = new Vector3D(-10, -0, -0);
+        cameraRotation = new Vector3D(0 * Math.PI / 180, -0 * Math.PI / 180, -180 * Math.PI / 180);
 
         scene3dGenerator = new Scene3DGenerator(500, 300, cameraPosition, cameraRotation);
         mainUIFrame = new MainUIFrame(scene3dGenerator.render2ImageSample());
@@ -22,18 +22,6 @@ public class MainRun {
                 update();
             }
         };
-
-        Timer timer = new Timer(1, listener);
-        timer.start(); 
-    }
-
-    public static void update() {
-        Dimension dimension = mainUIFrame.getSize();
-        scene3dGenerator.resize((int)dimension.getWidth(), (int)dimension.getHeight());
-        
-        // Temp Animation
-        cameraRotation.x += 0.05;
-        scene3dGenerator.rotateCamera(cameraRotation);
 
         // Model generation
         int[][][] testGrid = new int[6][6][6];
@@ -47,13 +35,29 @@ public class MainRun {
         testGrid[0] = new int[][]
         {
             {-1, -1, -1, -1, -1, -1},
-            {-1, 1, -1, -1, 1, -1},
+            {-1, -1, 1, -1, 1, -1},
             {-1, -1, -1, -1, -1, -1},
             {-1, 1, -1, 1, -1, 1},
             {-1, -1, 1, -1, 1, -1},
             {-1, -1, -1, -1, -1, -1}
         };
 
-        mainUIFrame.update3DImage(scene3dGenerator.render2Image(testGrid));
+        scene3dGenerator.updateGrid(testGrid);
+
+        // Timer
+        Timer timer = new Timer(1, listener);
+        timer.start(); 
+    }
+
+    public static void update() {
+        Dimension dimension = mainUIFrame.getSize();
+        scene3dGenerator.resize((int)dimension.getWidth(), (int)dimension.getHeight());
+        
+        // Temp Animation
+        cameraRotation.y += 0.03;
+        scene3dGenerator.rotateCamera(cameraRotation);
+
+        // Render
+        mainUIFrame.update3DImage(scene3dGenerator.render2Image());
     }
 }
