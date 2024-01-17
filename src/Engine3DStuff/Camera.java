@@ -30,10 +30,44 @@ public class Camera extends JPanel{
 
     public Camera() {
 
-        
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent event) {
+                firstX = event.getX();
+                firstY = event.getY();
+                mouseDrag = true;
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent event) {
+                mouseDrag = false;
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent event) {
+                if (mouseDrag) {
+                    int secondX = event.getX();
+                    int secondY = event.getY();
+
+                    int deltaX = secondX - firstX;
+                    int deltaY = secondY - firstY;
+
+                    rotateCamera(deltaX, deltaY);
+
+                    firstX = secondX;
+                    firstY = secondY;
+                }
+            }
+        });
      }
 
-     
+     private void rotateCamera(int deltaX, int deltaY) {
+        double rotationSpeed = 0.1;
+        rotation =  new Vector3D(rotation.x + deltaY * rotationSpeed, rotation.y + deltaX * rotationSpeed, 
+        rotation.z);
+
+        rotationMatrix = Matrix4x4.getRotationMatrix(rotation);
+     }
 
     public void animate() {
         if (atRest) {
