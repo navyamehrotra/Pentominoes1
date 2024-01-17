@@ -54,8 +54,11 @@ public class MainRun {
         scene3dGenerator.resize((int)dimension.getWidth(), (int)dimension.getHeight());
         
         // Temp Animation
-        cameraRotation.y += 0.03;
-        scene3dGenerator.rotateCamera(cameraRotation);
+        cameraRotation.x += MainUIFrame.getXCoord():
+        cameraRotation.y += MainUIFrame.getYCoord();
+
+        scene3DGenerator.rotateCamera(cameraRotation);
+
 
         // Render
         mainUIFrame.update3DImage(scene3dGenerator.render2Image());
