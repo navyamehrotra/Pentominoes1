@@ -23,6 +23,8 @@ public class MainRun {
             }
         };
 
+        CameraRotator rotator = new CameraRotator(scene3dGenerator.getCamera(), mainUIFrame.getFrame());
+
         // Model generation
         int[][][] testGrid = new int[6][6][6];
         for (int i = 0; i < 6; i++) {
@@ -53,13 +55,6 @@ public class MainRun {
         Dimension dimension = mainUIFrame.getSize();
         scene3dGenerator.resize((int)dimension.getWidth(), (int)dimension.getHeight());
         
-        // Temp Animation
-        cameraRotation.x += MainUIFrame.getXCoord():
-        cameraRotation.y += MainUIFrame.getYCoord();
-
-        scene3DGenerator.rotateCamera(cameraRotation);
-
-
         // Render
         mainUIFrame.update3DImage(scene3dGenerator.render2Image());
     }

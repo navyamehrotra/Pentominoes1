@@ -31,6 +31,10 @@ public class Scene3DGenerator {
         camera = new Camera(cameraPosition, cameraRotation, startWidth, startHeight);
     }
 
+    public Camera getCamera() {
+        return camera;
+    }
+
     public void moveCamera(Vector3D cameraPosition) {
         camera.setPosition(cameraPosition);
     }

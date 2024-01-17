@@ -12,16 +12,6 @@ public class MainUIFrame {
     private JFrame frame;
     private ImagePanel mainPanel;
 
-    private int firstX;
-    private int firstY;
-    private int lastX;
-    private int lastY;
-    private static int XCoord;
-    private static int YCoord;
-    
-    private boolean mouseDrag = false;
-
-
     public MainUIFrame(Image bgImage) {
         //ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
         //ImageIcon modesIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png");
@@ -98,44 +88,6 @@ public class MainUIFrame {
         topPanel.add(labelC);
         topPanel.add(valueC);
 
-        frame.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                mouseDrag = true;
-                firstX = e.getX();
-                firstY = e.getY();
-
-                System.out.println("clicked");
-                
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // 
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                mouseDrag = false;
-            
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                if (mouseDrag) {
-                lastX = e.getX();
-                lastY = e.getY();
-
-                int deltaX = lastX - firstX;
-                int deltaY = lastY - firstY;
-                XCoord = firstX + deltaX;
-                YCoord = firstY + deltaY;
-                
-                }
-            }
-        });
-
-
         //parcel.addActionListener(e -> {
         /*     if (!parcel.isSelected()) {
                 // possibility mode is on
@@ -154,6 +106,10 @@ public class MainUIFrame {
         MainUIFrame mainUIFrame = new MainUIFrame(tempGenerator.render2ImageSample());
     }
 
+    public JFrame getFrame() {
+        return frame;
+    }
+
     public Dimension getSize() {
         return frame.getSize();
     }
@@ -161,13 +117,4 @@ public class MainUIFrame {
     public void update3DImage(Image image) {
         mainPanel.update(image);
     }
-
-    public static int getXCoord() {
-        return XCoord;
-    }
-
-    public static int getYCoord() {
-        return YCoord;
-    }
-
 }
