@@ -10,4 +10,13 @@ public class MainRun {
         Vector3D cameraRotation = new Vector3D(0 * Math.PI / 180, -0 * Math.PI / 180, -40 * Math.PI / 180);
         CameraKeyframe cameraStart = new CameraKeyframe(cameraPosition, cameraRotation, 1);
     }
+
+    public void update() {
+        cameraRotation.x += MainUIFrame.getXCoord():
+        cameraRotation.y += MainUIFrame.getYCoord();
+
+        scene3DGenerator.rotateCamera(cameraRotation);
+
+
+    }
 }
