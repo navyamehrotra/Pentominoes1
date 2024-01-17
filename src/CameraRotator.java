@@ -62,6 +62,7 @@ public class CameraRotator extends MouseAdapter {
         if (mouseDrag) {
             lastX = e.getX();
             lastY = e.getY();
+            
 
             int deltaX = lastX - firstX;
             int deltaY = lastY - firstY;
@@ -73,8 +74,12 @@ public class CameraRotator extends MouseAdapter {
     }
 
     private void rotateCamera(int deltaX, int deltaY) {
-        cameraRotation.x += deltaX / 1000.0;
-        cameraRotation.y += deltaY / 1000.0;
+        double sensitivity = 0.0015;
+        cameraRotation.y += deltaX * sensitivity;
+        cameraRotation.x -= deltaY * sensitivity;
+
+        double maxVertAngle = Math.toRadians(89.0);
+        cameraRotation.x = Math.max(-maxVertAngle, Math.min(maxVertAngle, cameraRotation.x));
 
         camera.setRotation(cameraRotation);
         camera.setPosition(cameraPosition);
