@@ -21,6 +21,7 @@ public class MainUIFrame {
         UIManager.put("ToggleButton.font", font);
         UIManager.put("Label.font", font);
         UIManager.put("Spinner.font", font);
+        UIManager.put("RadioButton.font", font);
 
 
         frame = new JFrame();
@@ -29,8 +30,8 @@ public class MainUIFrame {
         
         JButton compute = new JButton("Compute");
         //JButton resetAll = new JButton("Reset");
-        JToggleButton modes = new JToggleButton("Board Fill Mode");
-        JToggleButton parcel = new JToggleButton("ABC Parcels Mode");
+        //JToggleButton modes = new JToggleButton("Board Fill Mode");
+        //JToggleButton parcel = new JToggleButton("ABC Parcels Mode");
 
         mainPanel = new ImagePanel(bgImage);
         frame.setContentPane(mainPanel);
@@ -58,18 +59,35 @@ public class MainUIFrame {
         c.fill = GridBagConstraints.NONE;
         frame.add(reset, c);
 
-        JLabel label = new JLabel("...");
+        JLabel label = new JLabel("Press the \"Compute\" button to start");
 
         bottomPanel.add(label, BorderLayout.NORTH);
         bottomPanel.add(buttonPanel, BorderLayout.CENTER);
         bottomPanel.setOpaque(true);
         bottomPanel.setBackground(new Color(255, 255, 255));
 
-        buttonPanel.setLayout(new GridLayout(1, 4, 10, 10));
-        buttonPanel.add(modes);
-        //buttonPanel.add(resetAll);
-        buttonPanel.add(parcel);
+        JRadioButton fillMode = new JRadioButton("Board Fill Mode");
+        JRadioButton scoreMode = new JRadioButton("Max Score Mode");
+        ButtonGroup targetModeGroup = new ButtonGroup();
+        targetModeGroup.add(fillMode);
+        targetModeGroup.add(scoreMode);
+        fillMode.setSelected(true);
+
+        JRadioButton abcMode = new JRadioButton("ABC Parcels Mode");
+        JRadioButton pltMode = new JRadioButton("PLT Parcels Mode");
+        ButtonGroup parcelModeGroup = new ButtonGroup();
+        parcelModeGroup.add(abcMode);
+        parcelModeGroup.add(pltMode);
+        abcMode.setSelected(true);
+
+        buttonPanel.setLayout(new GridLayout(2, 4, 10, 0));
+        buttonPanel.add(fillMode);
+        buttonPanel.add(abcMode);
         buttonPanel.add(compute);
+
+        //buttonPanel.add(resetAll);
+        buttonPanel.add(scoreMode);
+        buttonPanel.add(pltMode);
 
         buttonPanel.setOpaque(true);
         buttonPanel.setBackground(new Color(255, 255, 255));
@@ -120,32 +138,19 @@ public class MainUIFrame {
 
         //topPanel.add(valueC);
 
-        modes.addActionListener(e -> {
-             if (modes.isSelected()) {
-                // possibility mode is on
-                modes.setText("Max Score Mode");
-            } else {
-                // value mode is on
-                modes.setText("Board Fill Mode");
-            }
-        }); 
 
-        parcel.addActionListener(e -> {
-            if (parcel.isSelected()) {
-               // possibility mode is on
-                parcel.setText("PLT Parcels Mode");
-                aLabel.setText("Value of P:");
-                bLabel.setText("Value of L:");
-                cLabel.setText("Value of T:");
-           } else {
-            parcel.setText("ABC Parcels Mode");
+
+        abcMode.addActionListener(e -> {
             aLabel.setText("Value of A:");
             bLabel.setText("Value of B:");
             cLabel.setText("Value of C:");
+       });
 
-               // value mode is on
-           }
-       }); 
+       pltMode.addActionListener(e -> {
+        aLabel.setText("Value of P:");
+        bLabel.setText("Value of L:");
+        cLabel.setText("Value of T:");
+   });
 
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
