@@ -26,6 +26,10 @@ public class Camera {
         rotationMatrix = Matrix4x4.getRotationMatrix(cameraRotation);
     }
 
+    public void setRotation(Matrix4x4 cameraRotation) {
+        rotationMatrix = cameraRotation;
+    }
+
     public Matrix4x4 getPositionMatrix() {
         return positionMatrix;
     }

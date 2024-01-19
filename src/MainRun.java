@@ -12,7 +12,7 @@ public class MainRun {
 
     public static void main(String[] args) {
         Vector3D cameraPosition = new Vector3D(-10, -0, -0);
-        cameraRotation = new Vector3D(0 * Math.PI / 180, -0 * Math.PI / 180, -180 * Math.PI / 180);
+        cameraRotation = new Vector3D(0 * Math.PI / 180, -275 * Math.PI / 180, -180 * Math.PI / 180);
 
         scene3dGenerator = new Scene3DGenerator(500, 300, cameraPosition, cameraRotation);
         mainUIFrame = new MainUIFrame(scene3dGenerator.render2ImageSample());

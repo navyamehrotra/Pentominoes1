@@ -13,12 +13,8 @@ import java.util.*;
 import java.awt.*;
 
 public class CameraRotator extends MouseAdapter {
-    private int firstX;
-    private int firstY;
     private int lastX;
     private int lastY;
-    private int XCoord;
-    private int YCoord;
     
     private boolean mouseDrag = false;
 
@@ -36,7 +32,7 @@ public class CameraRotator extends MouseAdapter {
         this.camera = camera;
 
         // Temp start values:
-        cameraPosition = new Vector3D(0, 0, 0);
+        cameraPosition = new Vector3D(-10, 0, 0);
         cameraRotation = new Vector3D(0 * Math.PI / 180, 275 * Math.PI / 180, -180 * Math.PI / 180);
 
         camera.setPosition(cameraPosition);
@@ -46,9 +42,9 @@ public class CameraRotator extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent e) {
         mouseDrag = true;
-        firstX = e.getX();
-        firstY = e.getY();
 
+        lastX = e.getX();
+        lastY = e.getY();
     }
 
     @Override
@@ -59,35 +55,48 @@ public class CameraRotator extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent e) {
         if (mouseDrag) {
-            lastX = e.getX();
-            lastY = e.getY();
+
+            int xCoord = e.getX();;
+            int yCoord = e.getY();
+
+            int deltaX = xCoord - lastX;
+            int deltaY = yCoord - lastY;
+
+            lastX = xCoord;
+            lastY = yCoord;
             
-
-            int deltaX = lastX - firstX;
-            int deltaY = lastY - firstY;
-            XCoord = firstX + deltaX;
-            YCoord = firstY + deltaY;
-
             rotateCamera(deltaX, deltaY);
         }
     }
 
     private void rotateCamera(int deltaX, int deltaY) {
         double sensitivity = 0.0015;
-        cameraRotation.y += deltaX * sensitivity;
-        cameraRotation.x -= deltaY * sensitivity;
 
-        double maxVertAngle = Math.toRadians(359.0);
-        cameraRotation.x = Math.max(-maxVertAngle, Math.min(maxVertAngle, cameraRotation.x));
+        Vector4D rotationDelta = new Vector4D(deltaY * sensitivity, deltaX * sensitivity, 0, 0);
 
-        double[] x = findX(midpoint, y, radius);
+        //double maxVertAngle = Math.toRadians(359.0);
+        //cameraRotation.x = Math.max(-maxVertAngle, Math.min(maxVertAngle, cameraRotation.x));
 
-        cameraPosition.x = x[0];
-        cameraPosition.y = x[1];
-        cameraPosition.z = x[2];
+        Vector4D temp = new Vector4D(cameraRotation.x, cameraRotation.y, cameraRotation.z, 0);
+        temp = Matrix4x4.getRotationMatrix(cameraRotation).mul(rotationDelta).add(temp);
+        cameraRotation = new Vector3D(temp.x, temp.y, temp.z);
+
+        Vector4D up = new Vector4D(0, 0, 1, 0);
+
+        //Vector3D tempRotation = new Vector3D(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        //Vector4D position4D = Matrix4x4.getRotationMatrix(tempRotation).mul(up);
+        //Vector3D position3D = new Vector3D(position4D.x, position4D.y, position4D.z).mul(-10);
+        //position3D = new Vector3D(0, 0, 10).add(position3D);
+        //double[] x = findX(midpoint, y, radius);
+
+        //cameraPosition.x = x[0];
+        //cameraPosition.y = x[1];
+        //cameraPosition.z = x[2];
+
+        //System.out.println(position3D.x + ":" + position3D.y + ":" + position3D.z);
 
         camera.setRotation(cameraRotation);
-        camera.setPosition(cameraPosition);
+        //camera.setPosition(position3D);
     }
 
     public static double[] findX(double[] midpoint, double[] y, double radius) {

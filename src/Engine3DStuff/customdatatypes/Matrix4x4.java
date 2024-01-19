@@ -18,6 +18,8 @@ public class Matrix4x4 {
         return out;
     } 
 
+    //public static Matrix4x4 rotate
+
     public static Matrix4x4 getTranslationMatrix(Vector3D translation) {
         Matrix4x4 viewToCamera = new Matrix4x4();
 
