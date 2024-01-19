@@ -175,7 +175,6 @@ public class Knapsacker1 {
 	 * Main function. Needs to be executed to start the basic search algorithm
 	 */
 	public static void main(String[] args) {
-		ShapeDatabase.makeDatabase();
 		search(ShapeSet.ABC, X_SIZE, Y_SIZE, Z_SIZE);
 
 		System.out.println("Done!");
