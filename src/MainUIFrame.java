@@ -69,24 +69,35 @@ public class MainUIFrame {
         JSpinner valueB = new JSpinner();
         JSpinner valueC = new JSpinner();
 
+        JSpinner sizeX = new JSpinner();
+        JSpinner sizeY = new JSpinner();
+        JSpinner sizeZ = new JSpinner();
+
         JPanel topPanel = new JPanel();
 
-        topPanel.setLayout(new GridLayout(3, 2));
+        topPanel.setLayout(new GridLayout(3, 4));
         c.anchor = GridBagConstraints.FIRST_LINE_START;
         c.gridx = 0;
         frame.add(topPanel, c);
         topPanel.setOpaque(true);
         topPanel.setBackground(new Color(255, 255, 255));
-        JLabel labelA = new JLabel("A");
-        JLabel labelB = new JLabel("B");
-        JLabel labelC = new JLabel("C");
 
-        topPanel.add(labelA);
+        topPanel.add(new JLabel("value A: "));
         topPanel.add(valueA);
-        topPanel.add(labelB);
+        topPanel.add(new JLabel(" size X:"));
+        topPanel.add(sizeX);
+
+        topPanel.add(new JLabel("value B: "));
         topPanel.add(valueB);
-        topPanel.add(labelC);
+        topPanel.add(new JLabel(" size Y:"));
+        topPanel.add(sizeY);
+
+        topPanel.add(new JLabel("value C: "));
         topPanel.add(valueC);
+        topPanel.add(new JLabel(" size Z:"));
+        topPanel.add(sizeZ);
+
+        //topPanel.add(valueC);
 
         //parcel.addActionListener(e -> {
         /*     if (!parcel.isSelected()) {
