@@ -101,9 +101,9 @@ public class Knapsacker1 {
 		for (int c = 0; c < 3; c++) {
 			int shapeID = characterToID(shapes[c]);
 			// Loop through each possible mutation for that shape.
-			for (int mutation = 0; mutation < ShapeDatabase.getDatabase()[shapeID].length; mutation++) {
+			for (int mutation = 0; mutation < ShapeDatabase.data[shapeID].length; mutation++) {
 
-				int[][][] pieceToPlace = ShapeDatabase.getDatabase()[shapeID][mutation];
+				int[][][] pieceToPlace = ShapeDatabase.data[shapeID][mutation];
 
 				int emptyPadding = 0;
 				for (int i = 0; i < pieceToPlace.length; i++) {
