@@ -15,10 +15,12 @@ public class Scene3DGenerator {
     private Camera camera;
 
     private ArrayList<Object3D> sampleModels;
+    private ArrayList<Object3D> truckModel;
     private int[][][] grid;
     private ArrayList<Object3D> models = new ArrayList<>();
     private ArrayList<Material> materialSide = new ArrayList<>();
     private ArrayList<Material> materialTop = new ArrayList<>();
+    private boolean doShowTruck = true;
 
     public Scene3DGenerator(int startWidth, int startHeight, Vector3D cameraPosition, Vector3D cameraRotation) {
         engine3d = new Engine3D(startWidth, startHeight);
@@ -36,6 +38,13 @@ public class Scene3DGenerator {
         // Monkes :3
         sampleModels = new ArrayList<>();
         sampleModels.addAll(ModelLoader.loadOBJ("monke rainbow"));
+        truckModel = new ArrayList<>();
+        truckModel.addAll(ModelLoader.loadOBJ("truck2"));
+
+        for (Object3D model : truckModel) {
+            model.setPosition(new Vector3D(0, -7.84, 0));
+            model.setRotation(new Vector3D(0, Math.toRadians(-90), 0));
+        }
 
         // Projection stuff
         camera = new Camera(cameraPosition, cameraRotation, startWidth, startHeight);
@@ -79,13 +88,26 @@ public class Scene3DGenerator {
     }
 
     public void updateGrid(int[][][] grid) {
+
+
         this.grid = grid;
 
         models = new ArrayList<>();
+        if (doShowTruck) { 
+            models.addAll(truckModel);
+        }
 
         int xSize = grid.length;
         int ySize = grid[0].length;
         int zSize = grid[0][0].length;
+
+        // Truck offset
+        double xOffset = xSize > 33 ? (33 - xSize) / 2.0 : 0;
+        Vector3D offset = new Vector3D(-xOffset, (8 - ySize) / 2.0, 0);
+        for (Object3D model : truckModel) {
+            model.setPosition(new Vector3D(0, -7.84, 0).add(offset));
+            model.setRotation(new Vector3D(0, Math.toRadians(-90), 0));
+        }
 
         // Fill cubes
         for (int x = 0; x < xSize; x++) {
@@ -158,6 +180,15 @@ public class Scene3DGenerator {
     private Object3D getCube(Vector3D center, Vector3D extents) {
         Material material = new Material(Color.black);
         return getCube(center, extents, material, 0);
+    }
+
+    public void showTruck(boolean show) {
+        models.removeAll(truckModel);
+
+        if (show) {
+            models.addAll(truckModel);
+
+        }
     }
 
     private Object3D getCube(Vector3D center, Vector3D extents, Material material, int ind) {

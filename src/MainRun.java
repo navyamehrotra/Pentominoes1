@@ -30,11 +30,21 @@ public class MainRun {
                 rotator.resetView();
             }
         });
+        mainUIFrame.addShowTruckListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                scene3dGenerator.showTruck(true);
+            }
+        });
+        mainUIFrame.addHideTruckListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                scene3dGenerator.showTruck(false);
+            }
+        });
 
         // Model generation
         Random rand = new Random();
    
-        int[][][] testGrid = new int[33][8][5];
+        int[][][] testGrid = new int[33][8][5]; //33 8 5
         for (int i = 0; i < testGrid.length; i++) {
             for (int j = 0; j < testGrid[0].length; j++) {
                 for (int k = 0; k < testGrid[0][0].length; k++) {

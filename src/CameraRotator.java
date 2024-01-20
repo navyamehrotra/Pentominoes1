@@ -69,7 +69,6 @@ public class CameraRotator extends MouseAdapter {
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         int notches = e.getWheelRotation();
-        System.out.println(notches);
 
         radius += scrollSensitivity * notches;
         radius = Math.max(radius, minRadius);
@@ -78,6 +77,7 @@ public class CameraRotator extends MouseAdapter {
     }
 
     public void resetView() {
+        radius = startRadius;
         setRotation(new Vector3D(startRotation.x, startRotation.y, startRotation.z));
     }
 

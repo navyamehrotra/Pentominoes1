@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,6 +14,7 @@ public class MainUIFrame {
     private JFrame frame;
     private ImagePanel mainPanel;
     private JButton reset;
+    private JToggleButton hideTruck;
 
     public MainUIFrame(Image bgImage) {
         //ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
@@ -28,6 +30,7 @@ public class MainUIFrame {
         frame = new JFrame();
         JPanel buttonPanel = new JPanel();
         reset = new JButton("Reset View");
+        hideTruck = new JToggleButton("Hide truck");
         
         JButton compute = new JButton("Fill The Truck");
         //JButton resetAll = new JButton("Reset");
@@ -55,10 +58,16 @@ public class MainUIFrame {
         bottomPanel.setLayout(new BorderLayout());
         frame.add(bottomPanel, c);
 
+
+
         c.gridy = 0;
         c.anchor = GridBagConstraints.FIRST_LINE_END;
         c.fill = GridBagConstraints.NONE;
-        frame.add(reset, c);
+
+        JPanel topRightPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        frame.add(topRightPanel, c);
+        topRightPanel.add(reset);
+        topRightPanel.add(hideTruck);
 
         JLabel label = new JLabel("Press the \"Fill The Truck\" button to start");
 
@@ -151,6 +160,17 @@ public class MainUIFrame {
             cLabel.setText("Value of T:");
         });
 
+        hideTruck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (hideTruck.isSelected()) {
+                    hideTruck.setText("Show truck");
+                }
+                else {
+                    hideTruck.setText("Hide truck");
+                }
+            }
+        });
+
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         frame.setVisible(true);
@@ -158,6 +178,26 @@ public class MainUIFrame {
 
     public void addResetViewListener(ActionListener listener) {
         reset.addActionListener(listener);
+    }
+
+    public void addHideTruckListener(ActionListener listener) {
+        hideTruck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (hideTruck.isSelected()) {
+                    listener.actionPerformed(e);
+                }
+            }
+        });
+    }
+
+    public void addShowTruckListener(ActionListener listener) {
+        hideTruck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (!hideTruck.isSelected()) {
+                    listener.actionPerformed(e);
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
