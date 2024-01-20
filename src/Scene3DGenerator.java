@@ -5,8 +5,6 @@ import Engine3DStuff.customdatatypes.*;
 import Engine3DStuff.Debugging.*;
 
 import java.awt.image.BufferedImage;
-import java.awt.Image;
-
 import java.util.*;
 
 import java.awt.*;
@@ -19,16 +17,44 @@ public class Scene3DGenerator {
     private ArrayList<Object3D> sampleModels;
     private int[][][] grid;
     private ArrayList<Object3D> models = new ArrayList<>();
+    private ArrayList<Material> materialSide = new ArrayList<>();
+    private ArrayList<Material> materialTop = new ArrayList<>();
 
     public Scene3DGenerator(int startWidth, int startHeight, Vector3D cameraPosition, Vector3D cameraRotation) {
         engine3d = new Engine3D(startWidth, startHeight);
 
+        // Load Textures
+        BufferedImage sideTexture = ModelLoader.loadTexture("Cube_Sidex2.png");
+        BufferedImage topTexture = ModelLoader.loadTexture("Cube_Topx2.png");
+
+        Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.PINK, Color.YELLOW, Color.ORANGE };
+        for (int i = 0; i < colors.length; i++) {
+            materialSide.add(new Material(repaintImage(sideTexture, colors[i])));
+            materialTop.add(new Material(repaintImage(topTexture, colors[i])));
+        }
+        
         // Monkes :3
         sampleModels = new ArrayList<>();
         sampleModels.addAll(ModelLoader.loadOBJ("monke rainbow"));
 
         // Projection stuff
         camera = new Camera(cameraPosition, cameraRotation, startWidth, startHeight);
+    }
+
+    private BufferedImage repaintImage(BufferedImage image, Color color) {
+        BufferedImage repainted = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                Color pixelColor = new Color(image.getRGB(x, y));
+                int r = pixelColor.getRed() * color.getRed() / 255;
+                int g = pixelColor.getGreen() * color.getGreen() / 255;
+                int b = pixelColor.getBlue() * color.getBlue() / 255;
+                repainted.setRGB(x, y, new Color(r, g, b).getRGB());
+            }
+        }
+
+        return repainted;
     }
 
     public Camera getCamera() {
@@ -61,16 +87,14 @@ public class Scene3DGenerator {
         int ySize = grid[0].length;
         int zSize = grid[0][0].length;
 
-        Material tempMaterial = new Material(ModelLoader.loadTexture("tetris.png"));
-
         // Fill cubes
         for (int x = 0; x < xSize; x++) {
             for (int y = 0; y < ySize; y++) {
                 for (int z = 0; z < zSize; z++) {
                     if (grid[x][y][z] != -1) {
-                        Vector3D cubeCenter = new Vector3D(x - (double)xSize / 2, y - (double)ySize / 2, z - (double)zSize / 2);
+                        Vector3D cubeCenter = new Vector3D(x - (double)xSize / 2 + 0.5, y - (double)ySize / 2 + 0.5, z - (double)zSize / 2 + 0.5);
                         Vector3D cubeExtents = new Vector3D(0.5, 0.5, 0.5);
-                        models.add(getCube(cubeCenter, cubeExtents, tempMaterial));
+                        models.add(getCube(cubeCenter, cubeExtents, null, grid[x][y][z]));
                     }
                 }
             }
@@ -133,13 +157,33 @@ public class Scene3DGenerator {
 
     private Object3D getCube(Vector3D center, Vector3D extents) {
         Material material = new Material(Color.black);
-        return getCube(center, extents, material);
+        return getCube(center, extents, material, 0);
     }
 
-    private Object3D getCube(Vector3D center, Vector3D extents, Material material) {
+    private Object3D getCube(Vector3D center, Vector3D extents, Material material, int ind) {
+        Material side = materialSide.get(ind);
+        Material top = materialTop.get(ind);
+
+        if (material != null) {
+            side = material;
+            top = material;
+        }
+
         Object3D cube = new Object3D();
 
-        Vector2D[] tempUVs = new Vector2D[] {new Vector2D(0, 0), new Vector2D(0, 1), new Vector2D(1, 1)};
+        Vector2D[] none = new Vector2D[] {new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0)};
+
+
+        Vector2D[] uv1 = new Vector2D[] {new Vector2D(0, 0), new Vector2D(0, 1), new Vector2D(1, 1)};
+        Vector2D[] uv2 = new Vector2D[] {new Vector2D(0, 0), new Vector2D(1, 1), new Vector2D(1, 0)};
+        Vector2D[] uv3 = new Vector2D[] {new Vector2D(1, 1), new Vector2D(0, 1), new Vector2D(0, 0)};
+        Vector2D[] uv4 = new Vector2D[] {new Vector2D(1, 1), new Vector2D(1, 0), new Vector2D(0, 0)};
+        Vector2D[] uv5 = new Vector2D[] {new Vector2D(0, 1), new Vector2D(1, 1), new Vector2D(0, 0)};
+        Vector2D[] uv6 = new Vector2D[] {new Vector2D(1, 1), new Vector2D(0, 0), new Vector2D(0, 1)};
+        Vector2D[] uv7 = new Vector2D[] {new Vector2D(0, 1), new Vector2D(1, 1), new Vector2D(1, 0)};
+        Vector2D[] uv8 = new Vector2D[] {new Vector2D(0, 1), new Vector2D(1, 0), new Vector2D(0, 0)};
+        Vector2D[] uv9 = new Vector2D[] {new Vector2D(1, 0), new Vector2D(0, 0), new Vector2D(0, 1)};
+        Vector2D[] uv10 = new Vector2D[] {new Vector2D(1, 0), new Vector2D(0, 1), new Vector2D(1, 1)};
 
         Vector3D v0 = new Vector3D(-extents.x, -extents.y, -extents.z);
         Vector3D v1 = new Vector3D(-extents.x, -extents.y, extents.z);
@@ -150,18 +194,18 @@ public class Scene3DGenerator {
         Vector3D v6 = new Vector3D(extents.x, extents.y, -extents.z);
         Vector3D v7 = new Vector3D(extents.x, extents.y, extents.z);
 
-        cube.triangles.add(new Triangle(new Vector3D[]{v1, v3, v2}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v0, v1, v2}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v0, v4, v5}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v0, v5, v1}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v4, v6, v7}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v4, v7, v5}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v6, v2, v3}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v6, v3, v7}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v1, v5, v7}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v1, v7, v3}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v0, v6, v4}, tempUVs, material));
-        cube.triangles.add(new Triangle(new Vector3D[]{v0, v2, v6}, tempUVs, material));
+        cube.triangles.add(new Triangle(new Vector3D[]{v1, v3, v2}, uv4, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v0, v1, v2}, uv5, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v0, v4, v5}, uv7, top));
+        cube.triangles.add(new Triangle(new Vector3D[]{v0, v5, v1}, uv8, top));
+        cube.triangles.add(new Triangle(new Vector3D[]{v4, v6, v7}, uv4, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v4, v7, v5}, uv6, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v6, v2, v3}, uv9, top));
+        cube.triangles.add(new Triangle(new Vector3D[]{v6, v3, v7}, uv10, top));
+        cube.triangles.add(new Triangle(new Vector3D[]{v1, v5, v7}, uv7, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v1, v7, v3}, uv8, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v0, v6, v4}, uv6, side));
+        cube.triangles.add(new Triangle(new Vector3D[]{v0, v2, v6}, uv4, side));
 
         cube.setPosition(center);
 

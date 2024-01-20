@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -11,6 +12,7 @@ public class MainUIFrame {
     // Toly and nat
     private JFrame frame;
     private ImagePanel mainPanel;
+    private JButton reset;
 
     public MainUIFrame(Image bgImage) {
         //ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
@@ -23,12 +25,11 @@ public class MainUIFrame {
         UIManager.put("Spinner.font", font);
         UIManager.put("RadioButton.font", font);
 
-
         frame = new JFrame();
         JPanel buttonPanel = new JPanel();
-        JButton reset = new JButton("Reset View");
+        reset = new JButton("Reset View");
         
-        JButton compute = new JButton("Compute");
+        JButton compute = new JButton("Fill The Truck");
         //JButton resetAll = new JButton("Reset");
         //JToggleButton modes = new JToggleButton("Board Fill Mode");
         //JToggleButton parcel = new JToggleButton("ABC Parcels Mode");
@@ -59,14 +60,14 @@ public class MainUIFrame {
         c.fill = GridBagConstraints.NONE;
         frame.add(reset, c);
 
-        JLabel label = new JLabel("Press the \"Compute\" button to start");
+        JLabel label = new JLabel("Press the \"Fill The Truck\" button to start");
 
         bottomPanel.add(label, BorderLayout.NORTH);
         bottomPanel.add(buttonPanel, BorderLayout.CENTER);
         bottomPanel.setOpaque(true);
         bottomPanel.setBackground(new Color(255, 255, 255));
 
-        JRadioButton fillMode = new JRadioButton("Board Fill Mode");
+        JRadioButton fillMode = new JRadioButton("Complete Fill Mode");
         JRadioButton scoreMode = new JRadioButton("Max Score Mode");
         ButtonGroup targetModeGroup = new ButtonGroup();
         targetModeGroup.add(fillMode);
@@ -138,24 +139,25 @@ public class MainUIFrame {
 
         //topPanel.add(valueC);
 
-
-
         abcMode.addActionListener(e -> {
             aLabel.setText("Value of A:");
             bLabel.setText("Value of B:");
             cLabel.setText("Value of C:");
-       });
+        });  
 
-       pltMode.addActionListener(e -> {
-        aLabel.setText("Value of P:");
-        bLabel.setText("Value of L:");
-        cLabel.setText("Value of T:");
-   });
+        pltMode.addActionListener(e -> {
+            aLabel.setText("Value of P:");
+            bLabel.setText("Value of L:");
+            cLabel.setText("Value of T:");
+        });
 
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        //frame.setUndecorated(true);
         frame.setVisible(true);
+    }
+
+    public void addResetViewListener(ActionListener listener) {
+        reset.addActionListener(listener);
     }
 
     public static void main(String[] args) {

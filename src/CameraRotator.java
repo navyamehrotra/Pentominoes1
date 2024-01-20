@@ -2,15 +2,8 @@ import javax.swing.*;
 
 import Engine3DStuff.*;
 import Engine3DStuff.customdatatypes.*;
-import Engine3DStuff.Debugging.*;
-
-import java.awt.image.BufferedImage;
-import java.awt.Image;
 import java.awt.event.*;
 
-import java.util.*;
-
-import java.awt.*;
 
 public class CameraRotator extends MouseAdapter {
     private int lastX;
@@ -21,22 +14,26 @@ public class CameraRotator extends MouseAdapter {
     private Camera camera;
     private Vector3D cameraRotation;
     private Vector3D cameraPosition;
+    private double radius;
 
-    private double[] midpoint = {0, 0, 0};
-    private double[] y = {5, 5, 5};
-    private double radius = 9.12132;
+    private final double startRadius = 25;
+    private final double minRadius = 1;
+    private final double maxRadius = 60;
+    private final double maxVertAngle = Math.toRadians(89.9);
+    private final double dragSensitivity = 0.0015;
+    private final double scrollSensitivity = 1;
+    private final Vector3D startRotation = new Vector3D(0 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180);
 
     public CameraRotator(Camera camera, JFrame frame) {
         frame.addMouseListener(this);
         frame.addMouseMotionListener(this);
+        frame.addMouseWheelListener(this);
         this.camera = camera;
 
         // Temp start values:
-        cameraPosition = new Vector3D(-10, 0, 0);
-        cameraRotation = new Vector3D(0 * Math.PI / 180, 275 * Math.PI / 180, -180 * Math.PI / 180);
+        radius = startRadius;
 
-        camera.setPosition(cameraPosition);
-        camera.setRotation(cameraRotation);
+        setRotation(new Vector3D(startRotation.x, startRotation.y, startRotation.z));
     }
 
     @Override
@@ -69,66 +66,49 @@ public class CameraRotator extends MouseAdapter {
         }
     }
 
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int notches = e.getWheelRotation();
+        System.out.println(notches);
+
+        radius += scrollSensitivity * notches;
+        radius = Math.max(radius, minRadius);
+        radius = Math.min(radius, maxRadius);
+        recalculatePosition();
+    }
+
+    public void resetView() {
+        setRotation(new Vector3D(startRotation.x, startRotation.y, startRotation.z));
+    }
+
     private void rotateCamera(int deltaX, int deltaY) {
-        double sensitivity = 0.0015;
-
-        Vector4D rotationDelta = new Vector4D(deltaY * sensitivity, deltaX * sensitivity, 0, 0);
-
-        //double maxVertAngle = Math.toRadians(359.0);
-        //cameraRotation.x = Math.max(-maxVertAngle, Math.min(maxVertAngle, cameraRotation.x));
-
+        Vector4D rotationDelta = new Vector4D(0, -deltaX * dragSensitivity, -deltaY * dragSensitivity, 0);
         Vector4D temp = new Vector4D(cameraRotation.x, cameraRotation.y, cameraRotation.z, 0);
-        temp = Matrix4x4.getRotationMatrix(cameraRotation).mul(rotationDelta).add(temp);
-        cameraRotation = new Vector3D(temp.x, temp.y, temp.z);
+        temp = rotationDelta.add(temp);
 
-        Vector4D up = new Vector4D(0, 0, 1, 0);
-
-        //Vector3D tempRotation = new Vector3D(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        //Vector4D position4D = Matrix4x4.getRotationMatrix(tempRotation).mul(up);
-        //Vector3D position3D = new Vector3D(position4D.x, position4D.y, position4D.z).mul(-10);
-        //position3D = new Vector3D(0, 0, 10).add(position3D);
-        //double[] x = findX(midpoint, y, radius);
-
-        //cameraPosition.x = x[0];
-        //cameraPosition.y = x[1];
-        //cameraPosition.z = x[2];
-
-        //System.out.println(position3D.x + ":" + position3D.y + ":" + position3D.z);
-
-        camera.setRotation(cameraRotation);
-        //camera.setPosition(position3D);
+        setRotation(new Vector3D(temp.x, temp.y, temp.z));
     }
 
-    public static double[] findX(double[] midpoint, double[] y, double radius) {
-        double[] vector = new double[3];
+    private void setRotation(Vector3D rotation) {
+        cameraRotation = rotation;
+
+        cameraRotation.z = Math.max(-maxVertAngle, Math.min(maxVertAngle, cameraRotation.z));
+
+        recalculatePosition();
+    }
+
+    private void recalculatePosition() {
+        Vector3D cameraRotationSpecial = new Vector3D(0, 0, -cameraRotation.z);
+        Vector4D up = new Vector4D(0, 0, -1, 0);
+        Vector4D position4D = Matrix4x4.getRotationMatrix(cameraRotationSpecial).mul(up);
+
+        cameraRotationSpecial = new Vector3D(0, -cameraRotation.y, 0);
+        position4D = Matrix4x4.getRotationMatrix(cameraRotationSpecial).mul(position4D);
+
+        Vector3D position3D = new Vector3D(position4D.x, position4D.y, position4D.z).mul(radius);
         
-        for (int i = 0; i < 3; i++) {
-            vector[i] = y[i] - midpoint[i];
-        }
-
-        double norm = calculateNorm(vector);
-
-        double[] directionVector = new double[3];
-        for (int i = 0; i < 3; i++) {
-            directionVector[i] = vector[i] / norm;
-        }
-
-        double[] x = new double[3];
-        for (int i = 0; i < 3; i++) {
-            x[i] = midpoint[i] + radius * directionVector[i];
-        }
-
-        return x;
-    }
-
-    public static double calculateNorm(double[] vector) {
-        double sumOfSquares = 0.0;
-
-        for(double value : vector) {
-            sumOfSquares += value * value;
-        }
-
-        return Math.sqrt(sumOfSquares);
+        camera.setRotation(cameraRotation);
+        camera.setPosition(position3D);
     }
 }
 
