@@ -125,9 +125,9 @@ public class MainUIFrame {
         topPanel.setOpaque(true);
         topPanel.setBackground(new Color(255, 255, 255));
 
-        JLabel aLabel = new JLabel("value of A:");
-        JLabel bLabel = new JLabel("value of B:");
-        JLabel cLabel = new JLabel("value of C:");
+        JLabel aLabel = new JLabel("Value of A:");
+        JLabel bLabel = new JLabel("Value of B:");
+        JLabel cLabel = new JLabel("Value of C:");
 
         topPanel.add(aLabel);
         topPanel.add(valueA);

@@ -20,7 +20,7 @@ public class CameraRotator extends MouseAdapter {
     private final double minRadius = 1;
     private final double maxRadius = 60;
     private final double maxVertAngle = Math.toRadians(89.9);
-    private final double dragSensitivity = 0.0015;
+    private final double dragSensitivity = 0.003;
     private final double scrollSensitivity = 1;
     private final Vector3D startRotation = new Vector3D(0 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180);
 
