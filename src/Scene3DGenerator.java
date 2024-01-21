@@ -29,7 +29,7 @@ public class Scene3DGenerator {
         BufferedImage sideTexture = ModelLoader.loadTexture("Cube_Sidex2.png");
         BufferedImage topTexture = ModelLoader.loadTexture("Cube_Topx2.png");
 
-        Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.PINK, Color.YELLOW, Color.ORANGE };
+        Color[] colors = { Color.RED, Color.BLUE, Color.GREEN, Color.PINK, Color.YELLOW, Color.ORANGE, Color.BLACK, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.MAGENTA, Color.WHITE };
         for (int i = 0; i < colors.length; i++) {
             materialSide.add(new Material(repaintImage(sideTexture, colors[i])));
             materialTop.add(new Material(repaintImage(topTexture, colors[i])));
@@ -92,9 +92,9 @@ public class Scene3DGenerator {
 
         this.grid = grid;
 
-        models = new ArrayList<>();
+        ArrayList<Object3D> models2 = new ArrayList<>();
         if (doShowTruck) { 
-            models.addAll(truckModel);
+            models2.addAll(truckModel);
         }
 
         int xSize = grid.length;
@@ -116,13 +116,14 @@ public class Scene3DGenerator {
                     if (grid[x][y][z] != -1) {
                         Vector3D cubeCenter = new Vector3D(x - (double)xSize / 2 + 0.5, y - (double)ySize / 2 + 0.5, z - (double)zSize / 2 + 0.5);
                         Vector3D cubeExtents = new Vector3D(0.5, 0.5, 0.5);
-                        models.add(getCube(cubeCenter, cubeExtents, null, grid[x][y][z]));
+                        models2.add(getCube(cubeCenter, cubeExtents, null, grid[x][y][z]));
                     }
                 }
             }
         }
 
-        addBorder(models, xSize, ySize, zSize);
+        addBorder(models2, xSize, ySize, zSize);
+        models = models2;
     }
 
     public Image render2Image() {

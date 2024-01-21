@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import java.awt.Dimension;
 import java.awt.event.*;
+import java.lang.Character.UnicodeScript;
 import java.util.Random;
 
 public class MainRun {
@@ -66,7 +67,7 @@ public class MainRun {
         Timer timer = new Timer(1, listener);
         timer.start(); 
 
-        int[][][] solution = Knapsacker1.search(Knapsacker1.ShapeSet.PLT, 33, 8, 5);
+        int[][][] solution = DancingLinks.search(Utility.ShapeSet.PLT, 33, 8, 5);
         scene3dGenerator.updateGrid(solution);
 		System.out.println("Done!");
 

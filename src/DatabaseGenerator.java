@@ -21,6 +21,11 @@ public class DatabaseGenerator {
     //all pentominoes, inclusive their rotations
     private static int[][][][][] data = new int[6][][][][];
 
+    public static void main(String[] args) {
+        int[][][][][] databases = getDatabase();
+        System.out.println();
+    }
+
 
     public static int[][][][][] getDatabase() {
         makeDatabase();
@@ -39,7 +44,7 @@ public class DatabaseGenerator {
         int[][][] C = new int[3][3][3];
         fillWith1(C);
 
-        int[][][] L = new int[0][][];
+        int[][][] L = new int[1][][];
         L[0] = new int[][] {
             {1, 0},
             {1, 0},
@@ -47,14 +52,14 @@ public class DatabaseGenerator {
             {1, 1}
         };
 
-        int[][][] P = new int[0][][];
+        int[][][] P = new int[1][][];
         P[0] = new int[][] {
             {1, 1},
             {1, 1},
             {1, 0}
         };
 
-        int[][][] T = new int[0][][];
+        int[][][] T = new int[1][][];
         T[0] = new int[][] {
             {1, 1, 1},
             {0, 1, 0},
@@ -90,11 +95,19 @@ public class DatabaseGenerator {
         for(int i=0;i<basicDatabase.length;i++)
         {
             //make a piece with maximal number of mutations an space
-            int[][][][] tempDatabase = new int[24][4][4][4];
+            int[][][][] tempDatabase = new int[64][4][4][4];
 
             //take a piece of basic database, make it bigger so it fits in the 5*5, rotate it j times, move it to the left upper corner so duplicates will be the same
+            int ind = 0;
             for (int j = 0; j < 4; j++) {
-                tempDatabase[j] = moveToAbove(rotate(makeBigger(basicDatabase[i], 4), j));
+                for (int k = 0; k < 4; k++) {
+                    for (int l = 0; l < 4; l++) {
+                        tempDatabase[ind] = makeBigger(basicDatabase[i], 4);
+                        tempDatabase[ind] = rotate(tempDatabase[ind], j, k, l);
+                        tempDatabase[ind] = moveToAbove(tempDatabase[ind]);
+                        ind++;
+                    }
+                }
             }
 
             //same as above, but flipping it
@@ -126,33 +139,53 @@ public class DatabaseGenerator {
      * @param rotation: amount of rotation
      * @return the rotated matrix
      */
-    public static int[][][] rotate(int[][][] data, int rotation)
+    public static int[][][] rotate(int[][][] data, int rotX, int rotY, int rotZ)
     {
-        int[][] tempData1 = new int[data.length][data[0].length];
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                tempData1[i][j] = data[i][j];
+        int size = data.length;
+        int[][][] rotated = new int[size][size][size];
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    rotated[i][j][k] = data[i][j][k];
+                }
             }
         }
 
-        //do it for the amount of times it needs to be rotated
-        for(int k=0;k<rotation;k++) {
-            //make a matrix of the same size
-            int[][] tempData2 = new int[tempData1.length][tempData1[0].length];
-            //rotate it once and put it in tempData
-            for (int i = 0; i < tempData1.length; i++) {
-                for (int j = 0; j < tempData1[i].length; j++) {
-                    tempData2[i][j] = tempData1[j][tempData1.length - i - 1];
-                }
-            }
-            //put it back in the starting matrix so you can do it again
-            for (int i = 0; i < tempData1.length; i++) {
-                for (int j = 0; j < tempData1[i].length; j++) {
-                    tempData1[i][j] = tempData2[i][j];
+        for (int i = 0; i < rotX; i++) {
+            rotated = rotate(0, rotated);
+        }
+        for (int i = 0; i < rotY; i++) {
+            rotated = rotate(1, rotated);
+        }
+        for (int i = 0; i < rotZ; i++) {
+            rotated = rotate(2, rotated);
+        }
+
+        return rotated;
+    }
+
+    private static int[][][] rotate(int axis, int[][][] data) {
+        int size = data.length; 
+        int[][][] copy = new int[size][size][size];
+
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                for (int z = 0; z < size; z++) {
+                    if (axis == 0) {
+                        copy[x][z][size - y - 1] = data[x][y][z];
+                    }
+                    else if (axis == 1) {
+                        copy[z][y][size - x - 1] = data[x][y][z];
+                    }
+                    else if (axis == 2) {
+                        copy[y][size - x - 1][z] = data[x][y][z];
+                    }
                 }
             }
         }
-        return tempData1;
+
+        return copy;
     }
 
     /**
@@ -279,7 +312,9 @@ public class DatabaseGenerator {
                     }
                 }
             } while (empty);
-        }   
+        }
+        
+        return data;
     }
 
     /**
@@ -354,5 +389,68 @@ public class DatabaseGenerator {
      */
     public static int[][][] eraseEmptySpace(int[][][] data)
     {
+        int size = data.length;
+
+        int x = 0, y = 0, z = 0;
+
+        // x
+        for (; x < size; x++) {
+            boolean found = false;
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    if (data[x][j][k] != 0) {
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                break;
+            }
+        }
+
+        // y
+        for (; y < size; y++) {
+            boolean found = false;
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    if (data[j][y][k] != 0) {
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                break;
+            }
+        }
+
+        // z
+        for (; z < size; z++) {
+            boolean found = false;
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    if (data[j][k][z] != 0) {
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                break;
+            }
+        }
+        
+        int[][][] result = new int[x][y][z];
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                for (int k = 0; k < z; k++) {
+                    result[i][j][k] = data[i][j][k];
+                }
+            }
+        }
+        
+        return result;
     }
 }

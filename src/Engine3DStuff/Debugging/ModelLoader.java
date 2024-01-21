@@ -144,7 +144,10 @@ public class ModelLoader {
         //File file = new File(path.toAbsolutePath().toString());
 
         InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(textureFileName);
-
+        if (stream == null) {
+            return null;
+        }
+        
         try {
             return ImageIO.read(stream);
         }
