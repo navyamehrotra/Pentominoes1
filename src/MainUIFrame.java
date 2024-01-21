@@ -139,11 +139,11 @@ public class MainUIFrame {
         topPanel.add(new JLabel());
         topPanel.add(new JLabel());
 
-        topPanel.add(new JLabel("Truck Length:"));
+        topPanel.add(new JLabel("Cargo Length:"));
         topPanel.add(sizeX);
-        topPanel.add(new JLabel("Truck Width:"));
+        topPanel.add(new JLabel("Cargo Width:"));
         topPanel.add(sizeY);
-        topPanel.add(new JLabel("Truck Height:"));
+        topPanel.add(new JLabel("Cargo Height:"));
         topPanel.add(sizeZ);
 
         //topPanel.add(valueC);
