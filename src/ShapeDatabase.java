@@ -39,7 +39,7 @@
   */
  public class ShapeDatabase {
      // Stores and loads the data on program initialization
-     public static int[][][][][] data = loadData("shapes.csv");
+     public static int[][][][][] data = loadData(System.getProperty("user.dir") + "\\src\\shapes.csv");
  
      /**
       * Loads and decodes the CSV file
@@ -54,7 +54,7 @@
      private static int[][][][][] loadData(String fileName) {
          // Create a temporary dynamic object to store the data, later to be converted to
          // a static 4D array
-         ArrayList<ArrayList<int[][]>> dynamicList = new ArrayList<>();
+         ArrayList<ArrayList<int[][][]>> dynamicList = new ArrayList<>();
  
          // Open the CSV file
          File file = new File(fileName);
@@ -78,8 +78,15 @@
                  int[][][] piece = new int[xSize][ySize][zSize];
  
                  // Convert 1D list to 2D list
-                 for (int i = 0; i < xSize * ySize * zSize; i++) {
-                     piece[i / ySize][i % ySize] = Integer.valueOf(values[4 + i]);
+                 int i = 0;
+
+                 for (int x = 0; x < xSize; x++) {
+                    for (int y = 0; y < ySize; y++) {
+                        for (int z = 0; z < zSize; z++) {
+                            piece[x][y][z] = Integer.valueOf(values[5 + i]);
+                            i++;
+                        }
+                    }
                  }
  
                  // Add piece to the dynamic list
@@ -91,10 +98,11 @@
          }
  
          // Arrays index easier than ArrayLists, so convert dynamic list to static list
-         int[][][][] staticList = new int[dynamicList.size()][][][];
+         int[][][][][] staticList = new int[dynamicList.size()][][][][];
          for (int i = 0; i < dynamicList.size(); i++) {
-             staticList[i] = dynamicList.get(i).toArray(new int[0][0][0]);
+             staticList[i] = dynamicList.get(i).toArray(new int[0][0][0][0]);
          }
+         
          return staticList;
      }
  

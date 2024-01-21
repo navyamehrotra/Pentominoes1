@@ -1,4 +1,5 @@
 import Engine3DStuff.customdatatypes.Vector3D;
+
 import javax.swing.*;
 
 import java.awt.Dimension;
@@ -60,11 +61,17 @@ public class MainRun {
             }
         } 
 
-        scene3dGenerator.updateGrid(testGrid);
+        Knapsacker1.tempGenerator = scene3dGenerator;
 
-        // Timer
         Timer timer = new Timer(1, listener);
         timer.start(); 
+
+        int[][][] solution = Knapsacker1.search(Knapsacker1.ShapeSet.PLT, 33, 8, 5);
+        scene3dGenerator.updateGrid(solution);
+		System.out.println("Done!");
+
+        // Timer
+        
     }
 
     public static void update() {
