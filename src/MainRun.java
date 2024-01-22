@@ -67,7 +67,8 @@ public class MainRun {
         Timer timer = new Timer(1, listener);
         timer.start(); 
 
-        int[][][] solution = DancingLinks.search(Utility.ShapeSet.PLT, 33, 8, 5);
+        //int[][][] solution = DancingLinks.search(Utility.ShapeSet.PLT, 33, 8, 5);
+        int[][][] solution = Knapsacker1.search(Utility.ShapeSet.PLT, new int[]{3, 4, 5}, 33, 8, 5);
         scene3dGenerator.updateGrid(solution);
 		System.out.println("Done!");
 
