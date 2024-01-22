@@ -95,6 +95,15 @@ public class DancingLinks {
         }
 
         int[][][] grid = new int[sizeX][sizeY][sizeZ];
+
+        for (int x = 0; x < sizeX; x++) {
+            for (int y = 0; y < sizeY; y++) {
+                for (int z = 0; z < sizeZ; z++) {
+                    grid[x][y][z] = -1;
+                }
+            }
+        }
+
         int fillCount = 0;
 
         for (int i = 0; i < solution.size(); i++) {
@@ -118,10 +127,10 @@ public class DancingLinks {
             double percent = ((double)fillCount) / (sizeX * sizeY * sizeZ) * 100.0; 
 
             if (done) {
-                output.setText("Fill found! " + (percent) + "%" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+                output.setText("Fill found! " + String.format("%.2f", percent) + "%" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
             }
             else {
-                output.setText("Best fill so far: " + (percent) + "% (Still searching...)" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+                output.setText("Best fill so far: " + String.format("%.2f", percent) + "% (Still searching...)" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
             }
         }
     }

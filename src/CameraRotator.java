@@ -16,7 +16,7 @@ public class CameraRotator extends MouseAdapter {
     private Vector3D cameraPosition;
     private double radius;
 
-    private final double startRadius = 25;
+    private final double startRadius = 50;
     private final double minRadius = 1;
     private final double maxRadius = 60;
     private final double maxVertAngle = Math.toRadians(89.9);
