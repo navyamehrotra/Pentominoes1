@@ -1,25 +1,55 @@
 
 // Adaptation of Phase 1 code to work in 3D 
-import java.awt.Shape;
-import java.util.*;
+import java.util.Timer;
+
+import javax.swing.JLabel;
 
 /**
  * This class includes the methods to support the search of a solution.
  */
 public class Knapsacker1 {
-	public static final Scanner scan = new Scanner(System.in);
+	public final int EMPTY = -1; // How empty truck cells are defined.
+	private final double skipScalar = 0.95;
 
-	public static final int EMPTY = -1; // How empty truck cells are defined.
-	public static Scene3DGenerator tempGenerator;
+	public boolean dead = false;
 
-	// Sizes of truck as specified; we can make this flexible if we want to
-	//public static final int X_SIZE = 5;// 165 / 5;
-	//public static final int Y_SIZE = 8;//25 / 5;
-	//public static final int Z_SIZE = 15;//40 / 5;
+	private Scene3DGenerator generator;
+	private Utility.ShapeSet shapeSet;
+	private int[] scores;
+	private int sizeX, sizeY, sizeZ;
 
-	
+	private int[] bestScoreForNumber;
+	private int bestScore;
+	private JLabel output;
 
-	public static int[][][] search(Utility.ShapeSet shapeSet, int[] scores, int sizeX, int sizeY, int sizeZ) {
+	private char[] shapes;
+	private long startTime;
+
+	public Knapsacker1(Scene3DGenerator generator, JLabel output, Utility.ShapeSet shapeSet, int[] scores, int sizeX, int sizeY, int sizeZ) {
+		startTime = System.currentTimeMillis();
+		this.generator = generator;
+		this.shapeSet = shapeSet;
+		this.scores = scores;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
+		this.sizeZ = sizeZ;
+		this.output = output;
+
+		shapes = Utility.getShapeSet(shapeSet);
+
+		bestScoreForNumber = new int[sizeX * sizeY * sizeZ];
+		bestScore = 0;
+
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				search();
+			}
+		});  
+		t1.start();
+	}
+
+	public int[][][] search() {
 		int[][][] truck = new int[sizeX][sizeY][sizeZ];
 
 		for (int i = 0; i < sizeX; i++) {
@@ -30,43 +60,37 @@ public class Knapsacker1 {
 			}
 		}
 
-		//addPiece(truck, DatabaseGenerator.getDatabase()[3][3], 4, 0, 0, 0);
-		//return truck;
-		bestScoreForNumber = new int[sizeX * sizeY * sizeZ];
-		bestScore = 0;
+		recursiveSearch(truck, 0, 0, 0, 0, 0);
 
-		recursiveSearch(truck, Utility.getShapeSet(shapeSet), scores, 0, 0, 0, sizeX, sizeY, sizeZ, 0, 0);
+		if (!dead) {
+			output.setText("Best score found: " + bestScore + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+		}
 
 		return truck;
 	}
 
-
-	//private static ArrayList<Integer> added1 = new ArrayList<>();
-	//private static ArrayList<Integer> added2 = new ArrayList<>();
-	private static int[] bestScoreForNumber;
-	private static int bestScore;
-
-	private static double skipScalar = 0.95;
-
-	private static void recursiveSearch(int[][][] truck, char[] shapes, int[] scores,
+	private void recursiveSearch(int[][][] truck,
 		int wid, int len, int hgt, 
-		int x_size, int y_size, int z_size, int score, int numOfPieces) {
+		int score, int numOfPieces) {
+		if (dead) {
+			return;
+		}
 
 		// If 'row' is equal to the truck height, the truck is filled successfully.
 		// Note that this is because the program starts filling from top-left.
-		if (wid == x_size) {
+		if (wid == sizeX) {
 			return;
 		}
 
 		// Jump one up by one once the entire slice is filled
-		if (len == y_size) {
-			recursiveSearch(truck, shapes, scores, wid + 1, 0, 0, x_size, y_size, z_size, score, numOfPieces);
+		if (len == sizeY) {
+			recursiveSearch(truck, wid + 1, 0, 0, score, numOfPieces);
 			return;
 		}
 
 		// Jump to the next row once the current row is filled.
-		if (hgt == z_size) {
-			recursiveSearch(truck, shapes, scores, wid, len + 1, 0, x_size, y_size, z_size, score, numOfPieces);
+		if (hgt == sizeZ) {
+			recursiveSearch(truck, wid, len + 1, 0, score, numOfPieces);
 			return;
 		}
 
@@ -81,24 +105,27 @@ public class Knapsacker1 {
 
 		if (score > bestScore) {
 			bestScore = score;
-			System.out.println("Best score so far: " + bestScore);
+			if (!dead) {
+				generator.updateGrid(truck);
+				output.setText("Best score so far: " + bestScore + "(Still searching...)" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+			}
 		}
 
 		// If the current cell is not EMPTY, move to the next column.
 		if (truck[wid][len][hgt] != EMPTY) {
-			recursiveSearch(truck, shapes, scores, wid, len, hgt + 1, x_size, y_size, z_size, score, numOfPieces);
+			recursiveSearch(truck, wid, len, hgt + 1, score, numOfPieces);
 			return;
 		}
 
 		// Loop through each possible shapes.
 		for (int d = 0; d < 2; d++) {
 			int c = 0;
-			if (shapes[0] == 'P') {
+			if (shapeSet == Utility.ShapeSet.PLT) {
 				if (d == 0) c = 2;
 				if (d == 1) c = 1;
 				if (d == 2) c = 0;
 			}
-			else if (shapes[0] == 'A') {
+			else if (shapeSet == Utility.ShapeSet.ABC) {
 				if (d == 0) c = 2;
 				if (d == 1) c = 0;
 				if (d == 2) c = 1;
@@ -107,6 +134,9 @@ public class Knapsacker1 {
 			int shapeID = Utility.characterToID(shapes[c]);
 			// Loop through each possible mutation for that shape.
 			for (int mutation = 0; mutation < DatabaseGenerator.getDatabase()[shapeID].length; mutation++) {
+				if (dead) {
+					return;
+				}
 
 				int[][][] pieceToPlace = DatabaseGenerator.getDatabase()[shapeID][mutation];
 
@@ -138,11 +168,14 @@ public class Knapsacker1 {
 				//System.out.println(wid + ":" + len + ":" + hgt + ":" + c + ":" + mutation);
 				// If there is a possibility to place the piece on the field, making sure it
 				// does not overlap with any other pieces already place, place it.
-				if (Utility.canAddPiece(truck, pieceToPlace, EMPTY, wid, len - yPadding, hgt - zPadding, x_size, y_size, z_size)) {
+				if (Utility.canAddPiece(truck, pieceToPlace, EMPTY, wid, len - yPadding, hgt - zPadding, sizeX, sizeY, sizeZ)) {
 					Utility.addPiece(truck, pieceToPlace, shapeID, wid, len - yPadding, hgt - zPadding);
 
 					// Recur with the next column.
-					recursiveSearch(truck, shapes, scores, wid, len, hgt + 1, x_size, y_size, z_size, score + scores[c], numOfPieces + 1);
+					recursiveSearch(truck, wid, len, hgt + 1, score + scores[c], numOfPieces + 1);
+					if (dead) {
+						return;
+					}
 					// If placing the pentomino did not lead to a solution, remove it (backtrack)
 					// and print the truck state.
 					Utility.addPiece(truck, pieceToPlace, EMPTY, wid, len - yPadding, hgt - zPadding);
@@ -150,6 +183,6 @@ public class Knapsacker1 {
 			}
 		}
 
-		recursiveSearch(truck, shapes, scores, wid, len, hgt + 1, x_size, y_size, z_size, score, numOfPieces);
+		recursiveSearch(truck, wid, len, hgt + 1, score, numOfPieces);
 	}
 }

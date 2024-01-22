@@ -16,7 +16,10 @@ public class MainUIFrame {
     private JButton reset;
     private JToggleButton hideTruck;
 
-    public MainUIFrame(Image bgImage) {
+    private Knapsacker1 currentKnapsacker;
+    private DancingLinks currentLinks;
+
+    public MainUIFrame(Image bgImage, Scene3DGenerator generator) {
         //ImageIcon resetIcon  = new ImageIcon(System.getProperty("user.dir") + "/src/assets/reset.png"); 
         //ImageIcon modesIcon = new ImageIcon(System.getProperty("user.dir") + "/src/assets/human.png");
 
@@ -110,8 +113,8 @@ public class MainUIFrame {
         valueC.setValue(5);
 
         SpinnerNumberModel modelX = new SpinnerNumberModel(16.5, 0.5, 40.0, 0.5);  
-        SpinnerNumberModel modelY = new SpinnerNumberModel(2.5, 0.5, 40.0, 0.5);  
-        SpinnerNumberModel modelZ = new SpinnerNumberModel(4.0, 0.5, 40.0, 0.5);  
+        SpinnerNumberModel modelY = new SpinnerNumberModel(4.0, 0.5, 40.0, 0.5);  
+        SpinnerNumberModel modelZ = new SpinnerNumberModel(2.5, 0.5, 40.0, 0.5);  
         JSpinner sizeX = new JSpinner(modelX);
         JSpinner sizeY = new JSpinner(modelY);
         JSpinner sizeZ = new JSpinner(modelZ);
@@ -141,9 +144,9 @@ public class MainUIFrame {
 
         topPanel.add(new JLabel("Cargo Length:"));
         topPanel.add(sizeX);
-        topPanel.add(new JLabel("Cargo Width:"));
-        topPanel.add(sizeY);
         topPanel.add(new JLabel("Cargo Height:"));
+        topPanel.add(sizeY);
+        topPanel.add(new JLabel("Cargo Width:"));
         topPanel.add(sizeZ);
 
         //topPanel.add(valueC);
@@ -171,9 +174,43 @@ public class MainUIFrame {
             }
         });
 
+        compute.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (currentKnapsacker != null) {
+                    currentKnapsacker.dead = true;
+                }
+                if (currentLinks != null) {
+                    currentLinks.dead = true;
+                }
+
+                if (fillMode.isSelected()) {
+                    currentLinks = new DancingLinks(generator, label, 
+                        abcMode.isSelected() ? Utility.ShapeSet.ABC : Utility.ShapeSet.PLT, 
+                        getSize(sizeX), getSize(sizeY), getSize(sizeZ));
+                }
+                else {
+                    currentKnapsacker = new Knapsacker1(generator, label, 
+                        abcMode.isSelected() ? Utility.ShapeSet.ABC : Utility.ShapeSet.PLT, 
+                        new int[] { getScore(valueA), getScore(valueB), getScore(valueC)}, 
+                        getSize(sizeX), getSize(sizeY), getSize(sizeZ));
+                }
+            }
+        });
+
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         frame.setVisible(true);
+    }
+
+    private int getSize(JSpinner spinner) {
+        double val = (Double)spinner.getValue();
+        int ret = (int)Math.round(val * 2);
+        return ret;
+    }
+
+    private int getScore(JSpinner spinner) {
+        int ret = (Integer)spinner.getValue();
+        return ret;
     }
 
     public void addResetViewListener(ActionListener listener) {
@@ -200,12 +237,12 @@ public class MainUIFrame {
         });
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         Vector3D cameraPosition = new Vector3D(6, -8, -12);
         Vector3D cameraRotation = new Vector3D(90 * Math.PI / 180, 40 * Math.PI / 180, 0 * Math.PI / 180);
         Scene3DGenerator tempGenerator = new Scene3DGenerator(500, 300, cameraPosition, cameraRotation);
         MainUIFrame mainUIFrame = new MainUIFrame(tempGenerator.render2ImageSample());
-    }
+    }*/
 
     public JFrame getFrame() {
         return frame;

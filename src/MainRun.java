@@ -17,8 +17,7 @@ public class MainRun {
         Vector3D cameraRotation = new Vector3D(0 * Math.PI / 180, -275 * Math.PI / 180, -180 * Math.PI / 180);
 
         scene3dGenerator = new Scene3DGenerator(500, 300, cameraPosition, cameraRotation);
-        mainUIFrame = new MainUIFrame(scene3dGenerator.render2ImageSample());
-       
+        mainUIFrame = new MainUIFrame(scene3dGenerator.render2ImageSample(), scene3dGenerator);
 
         ActionListener listener = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -51,26 +50,21 @@ public class MainRun {
             for (int j = 0; j < testGrid[0].length; j++) {
                 for (int k = 0; k < testGrid[0][0].length; k++) {
 
-                    if (rand.nextInt(1000) < 500) {
+                    testGrid[i][j][k] = -1;
+                    /*if (rand.nextInt(1000) < 500) {
                         testGrid[i][j][k] = rand.nextInt(6);
                     } 
                     else {
                         testGrid[i][j][k] = -1;
-                    }
-
+                    }*/
                 }
             }
         } 
 
-        Knapsacker1.tempGenerator = scene3dGenerator;
+        scene3dGenerator.updateGrid(testGrid);
 
         Timer timer = new Timer(1, listener);
         timer.start(); 
-
-        //int[][][] solution = DancingLinks.search(Utility.ShapeSet.PLT, 33, 8, 5);
-        int[][][] solution = Knapsacker1.search(Utility.ShapeSet.PLT, new int[]{3, 4, 5}, 33, 8, 5);
-        scene3dGenerator.updateGrid(solution);
-		System.out.println("Done!");
 
         // Timer
         

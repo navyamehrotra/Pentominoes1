@@ -1,25 +1,41 @@
 import java.lang.Character.UnicodeScript;
 import java.util.ArrayList;
 
+import javax.swing.JLabel;
+
 public class DancingLinks {
 
-    public static void main(String[] args) {
-        search(Utility.ShapeSet.PLT, 11, 5, 8);
-        System.out.println();
+    private Scene3DGenerator generator;
+    private JLabel output;
+    private int sizeX, sizeY, sizeZ;
+
+    private boolean[][] strips;
+    private ArrayList<Integer> shapeType;
+
+    public boolean dead = false;
+    private long startTime;
+
+    public DancingLinks(Scene3DGenerator generator, JLabel output, Utility.ShapeSet shapeSet, int sizeX, int sizeY, int sizeZ) {
+        startTime = System.currentTimeMillis();
+        this.generator = generator;
+        this.output = output;
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.sizeZ = sizeZ;
+
+        Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				search(shapeSet, sizeX, sizeY, sizeZ);
+			}
+		});  
+		t1.start();
     }
 
-    public static int[][][] search(Utility.ShapeSet shapeSet, int sizeX, int sizeY, int sizeZ) {
+    public void search(Utility.ShapeSet shapeSet, int sizeX, int sizeY, int sizeZ) {
         // Get the strips
-        boolean[][] strips = getStrips(shapeSet, sizeX, sizeY, sizeZ);
-
-        /*strips = new boolean[][]
-        {
-            {false, true, false, true},
-            {true, false, false, false},
-            {true, true, false, false},
-            {false, false, true, false},
-            {false, false, true, true}
-        };*/
+        shapeType = new ArrayList<>();
+        strips = getStrips(shapeSet, shapeType, sizeX, sizeY, sizeZ);
 
         // Setup all the nodes
         DLNode[] newestNodeInRow = new DLNode[strips.length];
@@ -69,7 +85,17 @@ public class DancingLinks {
         ArrayList<Integer> solution = new ArrayList<>();
         recursiveSolve(root, solution);
 
+        decodeAndShowSolution(solution, true);
+    }
+
+    private int bestShown = 0;
+    private void decodeAndShowSolution(ArrayList<Integer> solution, boolean done) {
+        if (dead) {
+            return;
+        }
+
         int[][][] grid = new int[sizeX][sizeY][sizeZ];
+        int fillCount = 0;
 
         for (int i = 0; i < solution.size(); i++) {
             int ind = 0;
@@ -77,7 +103,8 @@ public class DancingLinks {
                 for (int y = 0; y < sizeY; y++) {
                     for (int z = 0; z < sizeZ; z++) {
                         if (strips[solution.get(i)][ind] == true ) {
-                            grid[x][y][z] = i % 12;
+                            grid[x][y][z] = shapeType.get(solution.get(i));// i % 12;
+                            fillCount++;
                         }
                         ind++;
                     }
@@ -85,7 +112,18 @@ public class DancingLinks {
             }
         }
 
-        return grid;
+        if (fillCount >= bestShown) {
+            bestShown = fillCount;
+            generator.updateGrid(grid);
+            double percent = ((double)fillCount) / (sizeX * sizeY * sizeZ) * 100.0; 
+
+            if (done) {
+                output.setText("Fill found! " + (percent) + "%" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+            }
+            else {
+                output.setText("Best fill so far: " + (percent) + "% (Still searching...)" + " - elapsed " + (System.currentTimeMillis() - startTime) + "ms");
+            }
+        }
     }
 
     private static void restore(DLHeader header) {
@@ -130,11 +168,13 @@ public class DancingLinks {
     }
 
 
-    private static int currentBest = 0;
-    
-    private static boolean recursiveSolve(DLNode root, ArrayList<Integer> currentSolution) {
+    private int currentBest = 0;
+    private boolean recursiveSolve(DLNode root, ArrayList<Integer> currentSolution) {
+        if (dead) {
+            return false;
+        }
+
         if (root.right == root) {
-            System.out.println("Found a solution");
             return true;
         }
 
@@ -149,7 +189,7 @@ public class DancingLinks {
 
             if (currentSolution.size() > currentBest) {
                 currentBest = currentSolution.size();
-                System.out.println("New best! " + currentBest);
+                decodeAndShowSolution(currentSolution, false);
             }
 
             //System.out.println("Removed row" + node.row);
@@ -160,6 +200,10 @@ public class DancingLinks {
 
             if (recursiveSolve(root, currentSolution)) {
                 return true;
+            }
+
+            if (dead) {
+                return false;
             }
 
             //System.out.println("Added row " + currentSolution.get(currentSolution.size() - 1));
@@ -176,7 +220,7 @@ public class DancingLinks {
         return false;
     }
 
-    private static boolean[][] getStrips(Utility.ShapeSet shapeSet, int sizeX, int sizeY, int sizeZ) {
+    private static boolean[][] getStrips(Utility.ShapeSet shapeSet, ArrayList<Integer> shapeTypes, int sizeX, int sizeY, int sizeZ) {
         ArrayList<boolean[]> fills = new ArrayList<>();
 
         int[][][][][] database = DatabaseGenerator.getDatabase();
@@ -209,11 +253,8 @@ public class DancingLinks {
                                     }
                                 }
 
-                                if (ind == 0) {
-                                    System.out.println();
-                                }
-
                                 fills.add(unravelled);
+                                shapeTypes.add(Utility.characterToID(chars[i]));
                             }
                         }
                     }
